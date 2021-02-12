@@ -58,8 +58,8 @@ async function addContact(name, email, phone) {
 
     contacts.push({ id: uuidv4(), name, email, phone });
 
-    // fs.writeFile(contactsPath, JSON.stringify(contacts));
-    console.table(contacts);
+    fs.writeFile(contactsPath, JSON.stringify(contacts));
+
     console.log('Contact added!');
   } catch (error) {
     handleError(error);

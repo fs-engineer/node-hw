@@ -20,6 +20,7 @@ function invokeOptions(options) {
     contacts.removeContact(id);
   } else if (options.add) {
     const { name, email, phone } = options;
+    console.log(email);
 
     contacts.addContact(name, email, phone);
   } else {

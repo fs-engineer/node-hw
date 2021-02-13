@@ -4,7 +4,7 @@ import getFileDirName from '../lib/dirname.js';
 import { handleError } from '../lib/handlerror.js';
 
 const { __dirname } = getFileDirName(import.meta.url);
-const contactsPath = path.resolve(__dirname, '../db/contacts.json');
+const contactsPath = path.join(__dirname, '../db/contacts.json');
 
 async function listContacts() {
   try {

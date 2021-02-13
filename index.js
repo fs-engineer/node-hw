@@ -5,8 +5,6 @@ program.parse(process.argv);
 
 const options = program.opts();
 
-console.log(options);
-
 function invokeOptions(options) {
   if (options.list) {
     contacts.listContacts();
@@ -20,7 +18,6 @@ function invokeOptions(options) {
     contacts.removeContact(id);
   } else if (options.add) {
     const { name, email, phone } = options;
-    console.log(email);
 
     contacts.addContact(name, email, phone);
   } else {

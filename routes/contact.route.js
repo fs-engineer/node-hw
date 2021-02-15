@@ -1,16 +1,20 @@
-import express, { json } from 'express';
-// import fs from 'fs/promises';
-// import path from 'path';
-import listContacts from '../modules/contacts.js';
-import getFileDirName from '../lib/dirname.js';
-
-// const { __dirname } = getFileDirName(import.meta.url);
-// const contactsPath = path.join(__dirname, '../db/contacts.json');
+import express from 'express';
+import contacts from '../modules/contacts.js';
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-  console.log(listContacts());
+router.get('/', (req, res, next) =>
+  contacts.listContacts().then(data => res.json(data)),
+);
+
+router.get('/:id', (req, res, next) => {
+  const { id } = req.params;
+  console.log(id);
+
+  contacts.getContactById(Number(id)).then(data => {
+    console.log(data);
+    return res.json(data);
+  });
 });
 
 export default router;

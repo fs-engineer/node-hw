@@ -75,9 +75,34 @@ async function addContact(name, email, phone) {
   }
 }
 
+async function editContact(data) {
+  try {
+    const res = await fs.readFile(contactsPath);
+    const contacts = JSON.parse(res);
+
+    const putchedContacts = contacts.map(contact => {
+      if (contact.id === data.id) {
+        if (data.name && contact.name !== data.name) contact.name = data.name;
+        if (data.email && contact.email !== data.email)
+          contact.email = data.email;
+        if (data.phone && contact.phone !== data.phone)
+          contact.phone = data.phone;
+      }
+      return contact;
+    });
+
+    fs.writeFile(contactsPath, JSON.stringify(putchedContacts, null, 2));
+
+    return putchedContacts;
+  } catch (error) {
+    handleError(error);
+  }
+}
+
 export default {
   listContacts,
   getContactById,
   removeContact,
   addContact,
+  editContact,
 };

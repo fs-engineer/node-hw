@@ -24,4 +24,10 @@ router.post('/', (req, res) => {
   contacts.addContact(name, email, phone).then(data => res.json(data));
 });
 
+router.patch('/', (req, res) => {
+  const reqData = req.body;
+
+  contacts.editContact(reqData).then(data => res.json(data));
+});
+
 export default router;

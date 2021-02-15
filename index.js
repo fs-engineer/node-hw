@@ -1,28 +1,45 @@
-import contacts from './modules/contacts.js';
+import express from 'express';
+import logger from 'morgan';
+import cors from 'cors';
+
 import program from './lib/commander.js';
+import contactRouter from './routes/contact.route.js';
 
-program.parse(process.argv);
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const options = program.opts();
+//init midlleware
+app.use(logger('dev'));
+app.use(cors());
+app.use(express.json());
 
-function invokeOptions(options) {
-  if (options.list) {
-    contacts.listContacts();
-  } else if (options.get) {
-    const id = Number(options.get);
+app.use('/api/contacts', contactRouter);
 
-    contacts.getContactById(id);
-  } else if (options.remove) {
-    const id = Number(options.remove);
+app.listen(PORT, () => {
+  console.log(`CORS-enabled web server listening on port ${PORT}`);
+});
 
-    contacts.removeContact(id);
-  } else if (options.add) {
-    const { name, email, phone } = options;
+// program.parse(process.argv);
+// const options = program.opts();
 
-    contacts.addContact(name, email, phone);
-  } else {
-    console.warn('\x1B[31m Unknown action type!');
-  }
-}
+// function invokeOptions(options = null) {
+//   if (options.list) {
+//     contacts.listContacts();
+//   } else if (options.get) {
+//     const id = Number(options.get);
 
-invokeOptions(options);
+//     contacts.getContactById(id);
+//   } else if (options.remove) {
+//     const id = Number(options.remove);
+
+//     contacts.removeContact(id);
+//   } else if (options.add) {
+//     const { name, email, phone } = options;
+
+//     contacts.addContact(name, email, phone);
+//   } else {
+//     console.warn('\x1B[31m Unknown action type!');
+//   }
+// }
+
+// invokeOptions(options);

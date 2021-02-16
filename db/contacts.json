@@ -60,12 +60,6 @@
     "phone": "(748) 206-2688"
   },
   {
-    "id": "2d21b683-295f-40dd-8928-a04c9393ff41",
-    "name": "test",
-    "email": "dsfsdfdsf",
-    "phone": "4353454354345"
-  },
-  {
     "id": "03e4dfbb-b6c8-480b-9a21-143d18e8377a",
     "name": "vadym",
     "email": "dsfs33333333",
@@ -76,11 +70,5 @@
     "name": "vadym",
     "email": "dsfs33333333",
     "phone": "4353454354345"
-  },
-  {
-    "id": "1ca6b7d5-2bbc-497c-82ea-4534a1cbbdd4",
-    "name": "Vasya",
-    "email": "blabla",
-    "phone": "111111111111111"
   }
 ]

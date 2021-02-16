@@ -3,7 +3,7 @@ import path from 'path';
 import getFileDirName from '../lib/dirname.js';
 import { handleError } from '../lib/handlerror.js';
 import { v4 as uuidv4 } from 'uuid';
-import Joi from 'joy';
+import Joi from 'joi';
 
 const { __dirname } = getFileDirName(import.meta.url);
 const contactsPath = path.join(__dirname, '../db/contacts.json');
@@ -13,7 +13,7 @@ async function listContacts(_, res) {
     const contactsJSON = await fs.readFile(contactsPath);
     const contacts = await JSON.parse(contactsJSON);
 
-    return res.json({
+    return res.status(200).json({
       status: 'success',
       code: 200,
       data: {
@@ -33,13 +33,13 @@ async function getContactById(req, res) {
     const contact = contacts.filter(contact => contact.id === contactId);
 
     if (contact.length > 0) {
-      res.json({
+      res.status(200).json({
         status: 'success',
         code: 200,
         data: { contact },
       });
     } else {
-      res.json({
+      res.status(404).json({
         status: 'denied',
         code: 404,
         message: 'Not found',
@@ -52,13 +52,56 @@ async function getContactById(req, res) {
 
 async function addContact(req, res) {
   try {
-    const res = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(res);
+    const contactsJSON = await fs.readFile(contactsPath);
+    const contacts = JSON.parse(contactsJSON);
     const { name, email, phone } = req.body;
-    const newContact = { id: uuidv4(), name, email, phone };
+    const contact = { id: uuidv4(), name, email, phone };
 
-    console.log(newContact);
-  } catch (error) {}
+    contacts.push(contact);
+
+    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+
+    res.status(201).json({
+      status: 'success',
+      code: 201,
+      data: {
+        contact,
+      },
+    });
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+async function removeContact(req, res) {
+  try {
+    const contactsJSON = await fs.readFile(contactsPath);
+    const contacts = JSON.parse(contactsJSON);
+    const { contactId } = req.params;
+
+    const contactIndex = contacts.findIndex(
+      contact => contact.id === contactId,
+    );
+
+    if (contactIndex === -1) {
+      return res.status(404).json({
+        status: 'canceled',
+        code: 404,
+        message: `Id: ${contactId} not found.`,
+      });
+    } else {
+      contacts.splice(contactIndex, 1);
+      fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+
+      res.status(200).json({
+        status: 'success',
+        code: 200,
+        message: `Contact with id: ${contactId} deleted`,
+      });
+    }
+  } catch (error) {
+    handleError(error);
+  }
 }
 
 async function validateUser(req, res, next) {
@@ -81,4 +124,6 @@ export default {
   listContacts,
   getContactById,
   validateUser,
+  addContact,
+  removeContact,
 };

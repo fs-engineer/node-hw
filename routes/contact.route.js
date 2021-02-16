@@ -10,27 +10,19 @@ router.get('/:contactId', (req, res, next) =>
   contactController.getContactById(req, res),
 );
 
-router.delete('/:id', (req, res, next) => {
-  const { id } = req.params;
-  contacts.removeContact(id).then(data =>
-    res.status(204).json({
-      status: 'deleted',
-      code: 204,
-      data: {
-        data,
-      },
-    }),
-  );
-});
+router.post('/', contactController.validateUser, (req, res) =>
+  contactController.addContact(req, res),
+);
 
-router.post('/', (req, res) => {
-  // const { name, email, phone } = req.body;
-  // contacts.addContact(name, email, phone).then(contact =>
-  //   res.status(201).json({
-  //     status: 'success',
-  //     code: 201,
+router.delete('/:contactId', (req, res, next) => {
+  contactController.removeContact(req, res);
+  // const { id } = req.params;
+  // contacts.removeContact(id).then(data =>
+  //   res.status(204).json({
+  //     status: 'deleted',
+  //     code: 204,
   //     data: {
-  //       contact,
+  //       data,
   //     },
   //   }),
   // );

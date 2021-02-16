@@ -8,12 +8,21 @@ import Joi from 'joi';
 const { __dirname } = getFileDirName(import.meta.url);
 const contactsPath = path.join(__dirname, '../db/contacts.json');
 
-async function listContacts(_, res) {
+async function getContactDB() {
   try {
     const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = await JSON.parse(contactsJSON);
+    const contacts = JSON.parse(contactsJSON);
+    return contacts;
+  } catch (error) {
+    handleError(error);
+  }
+}
 
-    res.status(200).json({
+async function listContacts(_req, res) {
+  try {
+    const contacts = await getContactDB();
+
+    await res.status(200).json({
       status: 'success',
       code: 200,
       data: {
@@ -27,8 +36,7 @@ async function listContacts(_, res) {
 
 async function getContactById(req, res) {
   try {
-    const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = await JSON.parse(contactsJSON);
+    const contacts = await getContactDB();
     const { contactId } = req.params;
 
     const contactIndex = contacts.findIndex(({ id }) => id === contactId);
@@ -55,8 +63,7 @@ async function getContactById(req, res) {
 
 async function addContact(req, res) {
   try {
-    const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(contactsJSON);
+    const contacts = await getContactDB();
     const { name, email, phone } = req.body;
 
     const contact = { id: uuidv4(), name, email, phone };
@@ -79,8 +86,7 @@ async function addContact(req, res) {
 
 async function removeContact(req, res) {
   try {
-    const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(contactsJSON);
+    const contacts = await getContactDB();
 
     const { contactId } = req.params;
     const contactIndex = contacts.findIndex(
@@ -110,8 +116,7 @@ async function removeContact(req, res) {
 
 async function updateContact(req, res) {
   try {
-    const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(contactsJSON);
+    const contacts = await getContactDB();
     const { contactId } = req.params;
 
     const contactIndex = contacts.findIndex(({ id }) => id === contactId);
@@ -130,7 +135,6 @@ async function updateContact(req, res) {
 
     contacts[contactIndex] = updatedContact;
 
-    console.table(contacts);
     fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
     res.json({
@@ -148,7 +152,7 @@ async function updateContact(req, res) {
 function validateContact(req, res, next) {
   const validationRules = Joi.object({
     name: Joi.string().min(3).max(30).required(),
-    email: Joi.string().alphanum().min(5).max(30).required(),
+    email: Joi.string().email().min(5).max(30).required(),
     phone: Joi.string().min(3).max(30).required(),
   });
 
@@ -164,9 +168,9 @@ function validateContact(req, res, next) {
 function validateUpdateContact(req, res, next) {
   const validationRules = Joi.object({
     name: Joi.string().min(3).max(30),
-    email: Joi.string().alphanum().min(5).max(30),
+    email: Joi.string().email().min(5).max(30),
     phone: Joi.string().min(3).max(30),
-  });
+  }).min(1);
 
   const validationResult = validationRules.validate(req.body);
 

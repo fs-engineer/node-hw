@@ -1,27 +1,24 @@
 import express from 'express';
 import contactControllers from '../contollers/contact-controllers.js';
-import contactController from '../contollers/contact-controllers.js';
 
 const router = express.Router();
 
-router.get('/', (req, res) => contactController.listContacts(req, res));
+router.get('/', contactControllers.listContacts);
 
-router.get('/:contactId', (req, res) =>
-  contactController.getContactById(req, res),
+router.get('/:contactId', contactControllers.getContactById);
+
+router.post(
+  '/',
+  contactControllers.validateContact,
+  contactControllers.addContact,
 );
 
-router.post('/', contactController.validateContact, (req, res) =>
-  contactController.addContact(req, res),
-);
-
-router.delete('/:contactId', (req, res) =>
-  contactController.removeContact(req, res),
-);
+router.delete('/:contactId', contactControllers.removeContact);
 
 router.patch(
   '/:contactId',
   contactControllers.validateUpdateContact,
-  (req, res) => contactController.updateContact(req, res),
+  contactControllers.updateContact,
 );
 
 export default router;

@@ -3,8 +3,6 @@ import logger from 'morgan';
 import cors from 'cors';
 import contactRouter from './routes/contact.route.js';
 
-// import program from './lib/commander.js';
-
 const app = express();
 
 //init midlleware
@@ -34,28 +32,3 @@ app.use((err, _, res, __) => {
 });
 
 export default app;
-
-// program.parse(process.argv);
-// const options = program.opts();
-
-// function invokeOptions(options = null) {
-//   if (options.list) {
-//     contacts.listContacts();
-//   } else if (options.get) {
-//     const id = Number(options.get);
-
-//     contacts.getContactById(id);
-//   } else if (options.remove) {
-//     const id = Number(options.remove);
-
-//     contacts.removeContact(id);
-//   } else if (options.add) {
-//     const { name, email, phone } = options;
-
-//     contacts.addContact(name, email, phone);
-//   } else {
-//     console.warn('\x1B[31m Unknown action type!');
-//   }
-// }
-
-// invokeOptions(options);

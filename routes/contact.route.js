@@ -1,7 +1,6 @@
 import express from 'express';
 import contactControllers from '../contollers/contact-controllers.js';
 import contactController from '../contollers/contact-controllers.js';
-import contacts from '../modules/contacts.js';
 
 const router = express.Router();
 

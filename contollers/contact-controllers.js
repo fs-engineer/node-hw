@@ -136,38 +136,6 @@ async function updateContact(req, res) {
         updatedContact,
       },
     });
-
-    // const isInContacts = contacts.find(contact => contact.id === contactId);
-
-    // if (isInContacts) {
-    //   const updateContacts = contacts.map(contact => {
-    //     if (contact.id === contactId) {
-    //       if (updateData.name && contact.name !== updateData.name)
-    //         contact.name = updateData.name;
-    //       if (updateData.email && contact.email !== updateData.email)
-    //         contact.email = updateData.email;
-    //       if (updateData.phone && contact.phone !== updateData.phone)
-    //         contact.phone = updateData.phone;
-    //     }
-    //     return contact;
-    //   });
-
-    //   fs.writeFile(contactsPath, JSON.stringify(updateContact, null, 2));
-
-    //   res.json({
-    //     status: 'access',
-    //     code: 200,
-    //     data: {
-    //       updateData,
-    //     },
-    //   });
-    // } else {
-    //   res.status(404).json({
-    //     status: 'not found.',
-    //     code: 404,
-    //     message: `Id: ${contactId} not found`,
-    //   });
-    // }
   } catch (error) {
     handleError(error);
   }

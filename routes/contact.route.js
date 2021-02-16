@@ -1,31 +1,14 @@
 import express from 'express';
+import contactController from '../contollers/contact-controllers.js';
 import contacts from '../modules/contacts.js';
 
 const router = express.Router();
 
-router.get('/', (_, res, next) =>
-  contacts.listContacts().then(contacts =>
-    res.json({
-      status: 'success',
-      code: 200,
-      data: {
-        contacts,
-      },
-    }),
-  ),
+router.get('/', (req, res, next) => contactController.listContacts(req, res));
+
+router.get('/:contactId', (req, res, next) =>
+  contactController.getContactById(req, res),
 );
-
-router.get('/:id', (req, res, next) => {
-  const { id } = req.params;
-
-  contacts.getContactById(id).then(contact =>
-    res.json({
-      status: 'success',
-      code: 200,
-      data: { contact },
-    }),
-  );
-});
 
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
@@ -41,17 +24,16 @@ router.delete('/:id', (req, res, next) => {
 });
 
 router.post('/', (req, res) => {
-  const { name, email, phone } = req.body;
-
-  contacts.addContact(name, email, phone).then(contact =>
-    res.status(201).json({
-      status: 'success',
-      code: 201,
-      data: {
-        contact,
-      },
-    }),
-  );
+  // const { name, email, phone } = req.body;
+  // contacts.addContact(name, email, phone).then(contact =>
+  //   res.status(201).json({
+  //     status: 'success',
+  //     code: 201,
+  //     data: {
+  //       contact,
+  //     },
+  //   }),
+  // );
 });
 
 router.patch('/', (req, res) => {

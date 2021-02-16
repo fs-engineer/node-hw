@@ -107,49 +107,67 @@ async function removeContact(req, res) {
 async function updateContact(req, res) {
   try {
     const contactsJSON = await fs.readFile(contactsPath);
-    let contacts = JSON.parse(contactsJSON);
-    const updateData = req.body;
+    const contacts = JSON.parse(contactsJSON);
     const { contactId } = req.params;
 
-    if (!updateData) {
-      return res.status(400).json({
-        status: 'denied',
-        code: 400,
-        message: 'missing fields',
-      });
+    const contactIndex = contacts.findIndex(({ id }) => id === contactId);
+
+    if (contactIndex === -1) {
+      return res.status(404).send('Contact not found.');
+    }
+    if (!req.body) {
+      return res.status(400).send('Missing fields.');
     }
 
-    const isInContacts = contacts.find(contact => contact.id === contactId);
+    const updatedContact = {
+      ...contacts[contactIndex],
+      ...req.body,
+    };
 
-    if (isInContacts) {
-      const updateContacts = contacts.map(contact => {
-        if (contact.id === contactId) {
-          if (updateData.name && contact.name !== updateData.name)
-            contact.name = updateData.name;
-          if (updateData.email && contact.email !== updateData.email)
-            contact.email = updateData.email;
-          if (updateData.phone && contact.phone !== updateData.phone)
-            contact.phone = updateData.phone;
-        }
-        return contact;
-      });
+    contacts[contactIndex] = updatedContact;
 
-      fs.writeFile(contactsPath, JSON.stringify(updateContact, null, 2));
+    console.table(contacts);
+    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
-      res.json({
-        status: 'access',
-        code: 200,
-        data: {
-          updateData,
-        },
-      });
-    } else {
-      res.status(404).json({
-        status: 'not found.',
-        code: 404,
-        message: `Id: ${contactId} not found`,
-      });
-    }
+    res.json({
+      status: 'access',
+      code: 200,
+      data: {
+        updatedContact,
+      },
+    });
+
+    // const isInContacts = contacts.find(contact => contact.id === contactId);
+
+    // if (isInContacts) {
+    //   const updateContacts = contacts.map(contact => {
+    //     if (contact.id === contactId) {
+    //       if (updateData.name && contact.name !== updateData.name)
+    //         contact.name = updateData.name;
+    //       if (updateData.email && contact.email !== updateData.email)
+    //         contact.email = updateData.email;
+    //       if (updateData.phone && contact.phone !== updateData.phone)
+    //         contact.phone = updateData.phone;
+    //     }
+    //     return contact;
+    //   });
+
+    //   fs.writeFile(contactsPath, JSON.stringify(updateContact, null, 2));
+
+    //   res.json({
+    //     status: 'access',
+    //     code: 200,
+    //     data: {
+    //       updateData,
+    //     },
+    //   });
+    // } else {
+    //   res.status(404).json({
+    //     status: 'not found.',
+    //     code: 404,
+    //     message: `Id: ${contactId} not found`,
+    //   });
+    // }
   } catch (error) {
     handleError(error);
   }

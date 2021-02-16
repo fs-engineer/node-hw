@@ -13,7 +13,7 @@ async function listContacts(_, res) {
     const contactsJSON = await fs.readFile(contactsPath);
     const contacts = await JSON.parse(contactsJSON);
 
-    return res.status(200).json({
+    res.status(200).json({
       status: 'success',
       code: 200,
       data: {
@@ -58,6 +58,7 @@ async function addContact(req, res) {
     const contactsJSON = await fs.readFile(contactsPath);
     const contacts = JSON.parse(contactsJSON);
     const { name, email, phone } = req.body;
+
     const contact = { id: uuidv4(), name, email, phone };
 
     contacts.push(contact);

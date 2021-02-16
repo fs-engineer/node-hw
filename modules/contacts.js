@@ -125,7 +125,7 @@ async function updateContact(data) {
 export default {
   // listContacts,
   // getContactById,
-  removeContact,
+  // removeContact,
   // addContact,
-  updateContact,
+  // updateContact,
 };

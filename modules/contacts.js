@@ -62,20 +62,21 @@ async function addContact(name, email, phone) {
   try {
     const res = await fs.readFile(contactsPath);
     const contacts = JSON.parse(res);
+    const newContact = { id: uuidv4(), name, email, phone };
 
-    contacts.push({ id: uuidv4(), name, email, phone });
+    contacts.push(newContact);
 
     fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
     console.log('Contact added!');
 
-    return `Contact added!`;
+    return newContact;
   } catch (error) {
     handleError(error);
   }
 }
 
-async function editContact(data) {
+async function updateContact(data) {
   try {
     const res = await fs.readFile(contactsPath);
     const contacts = JSON.parse(res);
@@ -104,5 +105,5 @@ export default {
   getContactById,
   removeContact,
   addContact,
-  editContact,
+  updateContact,
 };

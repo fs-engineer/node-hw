@@ -143,9 +143,9 @@ async function updateContact(req, res) {
 
 function validateContact(req, res, next) {
   const validationRules = Joi.object({
-    name: Joi.string().required(),
-    email: Joi.string().required(),
-    phone: Joi.string().required(),
+    name: Joi.string().alphanum().min(3).max(30).required(),
+    email: Joi.string().alphanum().min(5).max(30).required(),
+    phone: Joi.string().min(3).max(30).required(),
   });
 
   const validationResult = validationRules.validate(req.body);
@@ -159,9 +159,9 @@ function validateContact(req, res, next) {
 
 function validateUpdateContact(req, res, next) {
   const validationRules = Joi.object({
-    name: Joi.string(),
-    email: Joi.string(),
-    phone: Joi.string(),
+    name: Joi.string().alphanum().min(3).max(30),
+    email: Joi.string().alphanum().min(5).max(30),
+    phone: Joi.string().min(3).max(30),
   });
 
   const validationResult = validationRules.validate(req.body);

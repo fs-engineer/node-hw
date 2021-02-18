@@ -70,7 +70,6 @@ async function removeContact(req, res) {
     const { contactId } = req.params;
 
     const deletedData = await Contact.deleteOne({ _id: contactId });
-    console.log(deletedData);
 
     if (deletedData.n === 0) {
       return res.status(404).json({

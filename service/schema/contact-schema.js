@@ -27,7 +27,9 @@ const contactSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      minlength: 3,
+      maxlength: 50,
+      require: true,
     },
     token: {
       type: String,

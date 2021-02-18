@@ -14,11 +14,15 @@ router.get(
 
 router.post('/', ctrlContact.addContact);
 
-router.delete('/:contactId', ctrlContact.removeContact);
+router.delete(
+  '/:contactId',
+  ctrlValidation.validateContactId,
+  ctrlContact.removeContact,
+);
 
 router.patch(
   '/:contactId',
-
+  ctrlValidation.validateContactId,
   ctrlContact.updateContact,
 );
 

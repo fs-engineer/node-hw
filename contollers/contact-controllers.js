@@ -1,12 +1,11 @@
 import { handleError } from '../lib/handlerror.js';
-import { v4 as uuidv4 } from 'uuid';
 import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(_req, res) {
   try {
     const contacts = await Contact.find();
 
-    await res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       code: 200,
       data: {
@@ -32,7 +31,7 @@ async function getContactById(req, res) {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       code: 200,
       data: { contact },
@@ -44,16 +43,17 @@ async function getContactById(req, res) {
 
 async function addContact(req, res) {
   try {
-    const contacts = await readContactDB();
-    const { name, email, phone } = req.body;
+    const { name, email, phone, subscription, token } = req.body;
 
-    const contact = { id: uuidv4(), name, email, phone };
+    const contact = await Contact.create({
+      name,
+      email,
+      phone,
+      subscription,
+      token,
+    });
 
-    contacts.push(contact);
-
-    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-    res.status(201).json({
+    return res.status(201).json({
       status: 'success',
       code: 201,
       data: {
@@ -67,29 +67,25 @@ async function addContact(req, res) {
 
 async function removeContact(req, res) {
   try {
-    const contacts = await readContactDB();
-
     const { contactId } = req.params;
-    const contactIndex = contacts.findIndex(
-      contact => contact.id === contactId,
-    );
 
-    if (contactIndex === -1) {
+    const deletedData = await Contact.deleteOne({ _id: contactId });
+    console.log(deletedData);
+
+    if (deletedData.n === 0) {
       return res.status(404).json({
         status: 'canceled',
         code: 404,
         message: `Id: ${contactId} not found.`,
       });
-    } else {
-      contacts.splice(contactIndex, 1);
-      fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-      res.status(200).json({
-        status: 'success',
-        code: 200,
-        message: `Contact with id: ${contactId} deleted`,
-      });
     }
+
+    return res.status(200).json({
+      status: 'success',
+      code: 200,
+      message: `Contact with id: ${contactId} deleted`,
+      deletedData: deletedData,
+    });
   } catch (error) {
     handleError(error);
   }
@@ -97,28 +93,18 @@ async function removeContact(req, res) {
 
 async function updateContact(req, res) {
   try {
-    const contacts = await readContactDB();
     const { contactId } = req.params;
+    const { body } = req;
 
-    const contactIndex = contacts.findIndex(({ id }) => id === contactId);
+    const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
+      new: true,
+    });
 
-    if (contactIndex === -1) {
+    if (!updatedContact) {
       return res.status(404).send('Contact not found.');
     }
-    if (!req.body) {
-      return res.status(400).send('Missing fields.');
-    }
 
-    const updatedContact = {
-      ...contacts[contactIndex],
-      ...req.body,
-    };
-
-    contacts[contactIndex] = updatedContact;
-
-    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-    res.json({
+    return res.json({
       status: 'access',
       code: 200,
       data: {

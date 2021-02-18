@@ -46,6 +46,7 @@ async function addContact(req, res) {
     const data = req.body;
 
     const contact = await Contact.create(data);
+    console.log(contact);
 
     return res.status(201).json({
       status: 'success',

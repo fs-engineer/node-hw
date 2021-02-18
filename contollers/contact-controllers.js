@@ -1,22 +1,6 @@
-import * as fs from 'fs/promises';
-import path from 'path';
-import getFileDirName from '../lib/dirname.js';
 import { handleError } from '../lib/handlerror.js';
 import { v4 as uuidv4 } from 'uuid';
 import Contact from '../service/schema/contact-schema.js';
-
-const { __dirname } = getFileDirName(import.meta.url);
-const contactsPath = path.join(__dirname, '../db/contacts.json');
-
-async function readContactDB() {
-  try {
-    const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(contactsJSON);
-    return contacts;
-  } catch (error) {
-    handleError(error);
-  }
-}
 
 async function listContacts(_req, res) {
   try {
@@ -37,17 +21,13 @@ async function listContacts(_req, res) {
 async function getContactById(req, res) {
   try {
     const { contactId } = req.params;
-    const contact = await findOneAndRemove(contactId);
+    const contact = await Contact.findOneAndRemove(contactId);
 
-    const contactIndex = contacts.findIndex(({ id }) => id === contactId);
-
-    if (contactIndex === -1) {
-      return res.status(404).json({
-        status: 'not found',
-        code: 404,
-        message: 'Not found',
-      });
-    }
+    //  res.status(404).json({
+    //     status: 'not found',
+    //     code: 404,
+    //     message: 'Not found',
+    //   });
 
     res.status(200).json({
       status: 'success',

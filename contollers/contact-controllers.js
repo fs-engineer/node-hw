@@ -43,15 +43,9 @@ async function getContactById(req, res) {
 
 async function addContact(req, res) {
   try {
-    const { name, email, phone, subscription, token } = req.body;
+    const data = req.body;
 
-    const contact = await Contact.create({
-      name,
-      email,
-      phone,
-      subscription,
-      token,
-    });
+    const contact = await Contact.create(data);
 
     return res.status(201).json({
       status: 'success',

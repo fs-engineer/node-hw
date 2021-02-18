@@ -94,7 +94,7 @@ async function updateContact(req, res) {
     });
 
     if (!updatedContact) {
-      return res.status(404).send('Contact not found.');
+      return res.status(404).send(`ID: ${contactId} not found.`);
     }
 
     return res.json({

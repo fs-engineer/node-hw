@@ -2,12 +2,12 @@
   "name": "node-hw",
   "version": "1.0.0",
   "description": "",
-  "main": "./bin/www.js",
+  "main": "./server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./bin/www.js",
-    "dev": "nodemon ./bin/www.js  "
+    "start": "node ./server.js",
+    "dev": "nodemon ./server.js  "
   },
   "repository": {
     "type": "git",
@@ -31,9 +31,10 @@
   "dependencies": {
     "commander": "7.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^17.4.0",
-    "mongodb": "^3.6.4",
+    "mongoose": "^5.11.17",
     "morgan": "^1.10.0",
     "uuid": "^8.3.2"
   }

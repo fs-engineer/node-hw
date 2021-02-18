@@ -3,7 +3,7 @@ import path from 'path';
 import getFileDirName from '../lib/dirname.js';
 import { handleError } from '../lib/handlerror.js';
 import { v4 as uuidv4 } from 'uuid';
-import Joi from 'joi';
+import Contact from '../service/schema/contact-schema.js';
 
 const { __dirname } = getFileDirName(import.meta.url);
 const contactsPath = path.join(__dirname, '../db/contacts.json');
@@ -20,7 +20,7 @@ async function readContactDB() {
 
 async function listContacts(_req, res) {
   try {
-    const contacts = await readContactDB();
+    const contacts = await Contact.find();
 
     await res.status(200).json({
       status: 'success',
@@ -36,8 +36,8 @@ async function listContacts(_req, res) {
 
 async function getContactById(req, res) {
   try {
-    const contacts = await readContactDB();
     const { contactId } = req.params;
+    const contact = await findOneAndRemove(contactId);
 
     const contactIndex = contacts.findIndex(({ id }) => id === contactId);
 
@@ -48,8 +48,6 @@ async function getContactById(req, res) {
         message: 'Not found',
       });
     }
-
-    const contact = contacts[contactIndex];
 
     res.status(200).json({
       status: 'success',
@@ -149,44 +147,10 @@ async function updateContact(req, res) {
   }
 }
 
-function validateContact(req, res, next) {
-  const validationRules = Joi.object({
-    name: Joi.string().min(3).max(30).required(),
-    email: Joi.string().email().min(5).max(30).required(),
-    phone: Joi.string().min(3).max(30).required(),
-  });
-
-  const validationResult = validationRules.validate(req.body);
-
-  if (validationResult.error) {
-    return res.status(400).send(validationResult.error);
-  }
-
-  next();
-}
-
-function validateUpdateContact(req, res, next) {
-  const validationRules = Joi.object({
-    name: Joi.string().min(3).max(30),
-    email: Joi.string().email().min(5).max(30),
-    phone: Joi.string().min(3).max(30),
-  }).min(1);
-
-  const validationResult = validationRules.validate(req.body);
-
-  if (validationResult.error) {
-    return res.status(400).send(validationResult.error);
-  }
-
-  next();
-}
-
 export default {
   listContacts,
   getContactById,
   addContact,
   removeContact,
   updateContact,
-  validateContact,
-  validateUpdateContact,
 };

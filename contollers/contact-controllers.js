@@ -10,6 +10,7 @@ async function listContacts(_req, res) {
       status: 'success',
       code: 200,
       data: {
+        total: contacts.length,
         contacts,
       },
     });
@@ -21,13 +22,15 @@ async function listContacts(_req, res) {
 async function getContactById(req, res) {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findOneAndRemove(contactId);
+    const contact = await Contact.findById(contactId);
 
-    //  res.status(404).json({
-    //     status: 'not found',
-    //     code: 404,
-    //     message: 'Not found',
-    //   });
+    if (!contact) {
+      return res.status(404).json({
+        status: 'not found',
+        code: 404,
+        message: 'Not found',
+      });
+    }
 
     res.status(200).json({
       status: 'success',

@@ -1,29 +1,17 @@
 import express from 'express';
 import ctrlContact from '../contollers/contact-controllers.js';
-import ctrlValidation from '../contollers/contact-validation.js';
+import validationId from '../lib/validationId.js';
 
 const router = express.Router();
 
 router.get('/', ctrlContact.listContacts);
 
-router.get(
-  '/:contactId',
-  ctrlValidation.validateContactId,
-  ctrlContact.getContactById,
-);
+router.get('/:contactId', validationId, ctrlContact.getContactById);
 
 router.post('/', ctrlContact.addContact);
 
-router.delete(
-  '/:contactId',
-  ctrlValidation.validateContactId,
-  ctrlContact.removeContact,
-);
+router.delete('/:contactId', validationId, ctrlContact.removeContact);
 
-router.patch(
-  '/:contactId',
-  ctrlValidation.validateContactId,
-  ctrlContact.updateContact,
-);
+router.patch('/:contactId', validationId, ctrlContact.updateContact);
 
 export default router;

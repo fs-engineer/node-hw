@@ -48,9 +48,12 @@ const connection = mongoose.connect(DATA_HOST, {
 connection
   .then(() => {
     server.listen(PORT, () => {
-      console.log(`Server running. CORS-enabled. Use our API on port ${PORT}`);
+      console.log(
+        `Server running. CORS-enabled. Use our API on port ${PORT}. Database connection successful`,
+      );
     });
   })
-  .catch(err =>
+  .catch(err => {
     console.log(`Server not running. Error message: ${err.message}`),
-  );
+      process.exit(1);
+  });

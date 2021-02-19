@@ -56,6 +56,11 @@ async function addContact(req, res) {
       },
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(406).json({
+        message: `This email already exists`,
+      });
+    }
     handleError(error);
   }
 }
@@ -67,7 +72,7 @@ async function removeContact(req, res) {
     const deletedData = await Contact.deleteOne({ _id: contactId });
 
     if (deletedData.n === 0) {
-      return res.status(404).json({
+      return res.status(406).json({
         status: 'canceled',
         code: 404,
         message: `Id: ${contactId} not found.`,

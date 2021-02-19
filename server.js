@@ -4,7 +4,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import contactRouter from './routes/contact.route.js';
-import Types from 'mongoose';
 
 dotenv.config();
 const server = express();
@@ -36,12 +35,9 @@ server.use((err, _, res, __) => {
 });
 
 const PORT = process.env.PORT || 3000;
-const DB_NAME = process.env.DB_NAME;
-const DB_PASS = process.env.DB_PASS;
+const DATA_HOST = process.env.DATA_HOST;
 
-const MONGO_URL = `mongodb+srv://admin:${DB_PASS}@cluster0.nhmab.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
-
-const connection = mongoose.connect(MONGO_URL, {
+const connection = mongoose.connect(DATA_HOST, {
   promiseLibrary: global.Promise,
   useNewUrlParser: true,
   useCreateIndex: true,

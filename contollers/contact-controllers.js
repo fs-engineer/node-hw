@@ -78,7 +78,7 @@ async function removeContact(req, res) {
       status: 'success',
       code: 200,
       message: `Contact with id: ${contactId} deleted`,
-      deletedData: deletedData,
+      deletedData: deletedData.deletedCount,
     });
   } catch (error) {
     handleError(error);

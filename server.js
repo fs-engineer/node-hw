@@ -3,7 +3,7 @@ import logger from 'morgan';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import contactRouter from './routes/contact.route.js';
+import userRouter from './routes/user.route.js';
 
 dotenv.config();
 const server = express();
@@ -13,7 +13,7 @@ server.use(logger('dev'));
 server.use(cors());
 server.use(express.json());
 
-server.use('/contacts', contactRouter);
+server.use('/contacts', userRouter);
 
 server.use((_, res, __) => {
   res.status(404).json({

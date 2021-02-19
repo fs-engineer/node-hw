@@ -1,5 +1,5 @@
 import { handleError } from '../lib/handlerror.js';
-import Contact from '../service/schema/contact-schema.js';
+import Contact from '../service/schema/user-schema.js';
 
 async function listContacts(_req, res) {
   try {
@@ -46,7 +46,6 @@ async function addContact(req, res) {
     const data = req.body;
 
     const contact = await Contact.create(data);
-    console.log(contact);
 
     return res.status(201).json({
       status: 'success',
@@ -69,15 +68,15 @@ async function addContact(req, res) {
 
 async function removeContact(req, res) {
   try {
-    const { contactId } = req.params;
+    const { userId } = req.params;
 
-    const deletedData = await Contact.deleteOne({ _id: contactId });
+    const deletedData = await Contact.deleteOne({ _id: userId });
 
     if (deletedData.n === 0) {
       return res.status(404).json({
         status: 'not found',
         code: 404,
-        message: `Id: ${contactId} not found.`,
+        message: `Id: ${userId} not found.`,
         data: 'Bad request.',
       });
     }
@@ -85,7 +84,7 @@ async function removeContact(req, res) {
     return res.status(200).json({
       status: 'success',
       code: 200,
-      message: `Contact with id: ${contactId} deleted`,
+      message: `Contact with id: ${userId} deleted`,
       deletedData: deletedData.deletedCount,
     });
   } catch (error) {
@@ -95,15 +94,15 @@ async function removeContact(req, res) {
 
 async function updateContact(req, res) {
   try {
-    const { contactId } = req.params;
+    const { userId } = req.params;
     const { body } = req;
 
-    const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
+    const updatedContact = await Contact.findByIdAndUpdate(userId, body, {
       new: true,
     });
 
     if (!updatedContact) {
-      return res.status(404).send(`ID: ${contactId} not found.`);
+      return res.status(404).send(`ID: ${userId} not found.`);
     }
 
     return res.json({

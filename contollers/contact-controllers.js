@@ -78,6 +78,7 @@ async function removeContact(req, res) {
         status: 'not found',
         code: 404,
         message: `Id: ${contactId} not found.`,
+        data: 'Bad request.',
       });
     }
 

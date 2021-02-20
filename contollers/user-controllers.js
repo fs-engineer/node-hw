@@ -1,6 +1,7 @@
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
 import bCrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 async function listUser(_req, res) {
   try {
@@ -56,9 +57,10 @@ async function createUser(req, res) {
 
 async function login(req, res) {
   const userData = req.body;
+  const secret = process.env.secret;
 
   try {
-    const { email, password, subscription } = await User.findOne({
+    const { _id, email, password, subscription } = await User.findOne({
       email: userData.email,
     });
     const authentication = bCrypt.compareSync(userData.password, password);
@@ -71,17 +73,21 @@ async function login(req, res) {
       });
     }
 
-    return res.status(200).json({
-      Status: 'OK,',
-      'Content-Type': 'application/json',
-      ResponseBody: {
-        token: 'exampletoken',
-        user: {
-          email: email,
-          subscription: subscription,
+    if (authentication) {
+      const token = jwt.sign({ _id, email }, secret);
+
+      return res.status(200).json({
+        Status: 'OK,',
+        'Content-Type': 'application/json',
+        ResponseBody: {
+          token: token,
+          user: {
+            email: email,
+            subscription: subscription,
+          },
         },
-      },
-    });
+      });
+    }
   } catch (error) {
     console.log(error.code);
     handleError(error);

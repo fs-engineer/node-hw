@@ -5,7 +5,9 @@ import validateUser from '../service/user-validation.js';
 import contactController from '../contollers/contact-controller.js';
 import tokenValidation from '../service/token-validation.js';
 
-router.get('/', tokenValidation, contactController.listContacts);
+const router = express.Router();
+
+router.get('/', contactController.listContacts);
 
 router.get('/:contactId', validationId, contactController.getContactById);
 

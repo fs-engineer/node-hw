@@ -19,6 +19,51 @@ async function listUser(_req, res) {
   }
 }
 
+async function createUser(req, res) {
+  const data = req.body;
+
+  const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
+  const newUser = { ...data, password: password };
+
+  try {
+    const user = await User.create(newUser);
+
+    return res.status(201).json({
+      Status: 'Created',
+      code: 201,
+      'Content-Type': 'application/json',
+      ResponseBody: {
+        user: {
+          email: user.email,
+          subscription: user.subscription,
+        },
+      },
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        Status: 'Conflict',
+        code: 409,
+        'Content-Type': 'application/json',
+        ResponseBody: {
+          message: 'Email in use',
+        },
+      });
+    }
+    handleError(error);
+  }
+}
+
+async function login(req, res) {
+  const userData = req.body;
+  console.log(userData);
+  try {
+    return res.status(200).json(userData);
+  } catch (error) {
+    handleError(error);
+  }
+}
+
 async function getUserById(req, res) {
   try {
     const { userId } = req.params;
@@ -38,36 +83,6 @@ async function getUserById(req, res) {
       data: { user },
     });
   } catch (error) {
-    handleError(error);
-  }
-}
-
-async function addUser(req, res) {
-  const data = req.body;
-
-  const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
-  const newUser = { ...data, password: password };
-
-  try {
-    const user = await User.create(newUser);
-
-    return res.status(201).json({
-      status: 'success',
-      code: 201,
-      data: {
-        user,
-      },
-    });
-  } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        Status: '409 Conflict',
-        'Content-Type': 'application/json',
-        ResponseBody: {
-          message: 'Email in use',
-        },
-      });
-    }
     handleError(error);
   }
 }
@@ -126,7 +141,8 @@ async function updateUser(req, res) {
 export default {
   listUser,
   getUserById,
-  addUser,
+  createUser,
+  login,
   removeUser,
   updateUser,
 };

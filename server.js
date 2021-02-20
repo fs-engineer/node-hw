@@ -13,13 +13,13 @@ server.use(logger('dev'));
 server.use(cors());
 server.use(express.json());
 
-server.use('/contacts', userRouter);
+server.use('/users', userRouter);
 
 server.use((_, res, __) => {
   res.status(404).json({
     status: 'error',
     code: 404,
-    message: 'Use api on routes: /contacts',
+    message: 'Use api on routes: /users',
     data: 'Not found',
   });
 });

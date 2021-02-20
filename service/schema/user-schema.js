@@ -6,7 +6,10 @@ const userSchema = new Schema(
     name: {
       type: String,
     },
-    email: String,
+    email: {
+      type: String,
+      unique: true,
+    },
     password: String,
     subscription: {
       type: String,
@@ -18,6 +21,6 @@ const userSchema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
-const Contact = mongoose.model('Contact', userSchema);
+const User = mongoose.model('User', userSchema);
 
-export default Contact;
+export default User;

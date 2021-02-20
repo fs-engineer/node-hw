@@ -1,16 +1,17 @@
 import { handleError } from '../lib/handlerror.js';
-import Contact from '../service/schema/user-schema.js';
+import User from '../service/schema/user-schema.js';
+import bCrypt from 'bcryptjs';
 
-async function listContacts(_req, res) {
+async function listUser(_req, res) {
   try {
-    const contacts = await Contact.find();
+    const user = await User.find();
 
     return res.status(200).json({
       status: 'success',
       code: 200,
       data: {
-        total: contacts.length,
-        contacts,
+        total: user.length,
+        user,
       },
     });
   } catch (error) {
@@ -18,12 +19,12 @@ async function listContacts(_req, res) {
   }
 }
 
-async function getContactById(req, res) {
+async function getUserById(req, res) {
   try {
-    const { contactId } = req.params;
-    const contact = await Contact.findById(contactId);
+    const { userId } = req.params;
+    const user = await User.findById(userId);
 
-    if (!contact) {
+    if (!user) {
       return res.status(404).json({
         status: 'not found',
         code: 404,
@@ -34,43 +35,48 @@ async function getContactById(req, res) {
     return res.status(200).json({
       status: 'success',
       code: 200,
-      data: { contact },
+      data: { user },
     });
   } catch (error) {
     handleError(error);
   }
 }
 
-async function addContact(req, res) {
-  try {
-    const data = req.body;
+async function addUser(req, res) {
+  const data = req.body;
 
-    const contact = await Contact.create(data);
+  const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
+  const newUser = { ...data, password: password };
+
+  try {
+    const user = await User.create(newUser);
 
     return res.status(201).json({
       status: 'success',
       code: 201,
       data: {
-        contact,
+        user,
       },
     });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
-        status: 'Conflict',
-        const: 409,
-        message: `This email already exists`,
+        Status: '409 Conflict',
+        'Content-Type': 'application/json',
+        ResponseBody: {
+          message: 'Email in use',
+        },
       });
     }
     handleError(error);
   }
 }
 
-async function removeContact(req, res) {
+async function removeUser(req, res) {
   try {
     const { userId } = req.params;
 
-    const deletedData = await Contact.deleteOne({ _id: userId });
+    const deletedData = await User.deleteOne({ _id: userId });
 
     if (deletedData.n === 0) {
       return res.status(404).json({
@@ -84,7 +90,7 @@ async function removeContact(req, res) {
     return res.status(200).json({
       status: 'success',
       code: 200,
-      message: `Contact with id: ${userId} deleted`,
+      message: `User with id: ${userId} deleted`,
       deletedData: deletedData.deletedCount,
     });
   } catch (error) {
@@ -92,16 +98,16 @@ async function removeContact(req, res) {
   }
 }
 
-async function updateContact(req, res) {
+async function updateUser(req, res) {
   try {
     const { userId } = req.params;
     const { body } = req;
 
-    const updatedContact = await Contact.findByIdAndUpdate(userId, body, {
+    const updatedUser = await User.findByIdAndUpdate(userId, body, {
       new: true,
     });
 
-    if (!updatedContact) {
+    if (!updatedUser) {
       return res.status(404).send(`ID: ${userId} not found.`);
     }
 
@@ -109,7 +115,7 @@ async function updateContact(req, res) {
       status: 'access',
       code: 200,
       data: {
-        updatedContact,
+        updatedUser,
       },
     });
   } catch (error) {
@@ -118,9 +124,9 @@ async function updateContact(req, res) {
 }
 
 export default {
-  listContacts,
-  getContactById,
-  addContact,
-  removeContact,
-  updateContact,
+  listUser,
+  getUserById,
+  addUser,
+  removeUser,
+  updateUser,
 };

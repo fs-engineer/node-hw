@@ -56,10 +56,34 @@ async function createUser(req, res) {
 
 async function login(req, res) {
   const userData = req.body;
-  console.log(userData);
+
   try {
-    return res.status(200).json(userData);
+    const { email, password, subscription } = await User.findOne({
+      email: userData.email,
+    });
+    const authentication = bCrypt.compareSync(userData.password, password);
+
+    if (!authentication) {
+      return res.status(401).json({
+        Status: 'Unauthorized',
+        code: 401,
+        ResponseBody: 'Email or password is wrong',
+      });
+    }
+
+    return res.status(200).json({
+      Status: 'OK,',
+      'Content-Type': 'application/json',
+      ResponseBody: {
+        token: 'exampletoken',
+        user: {
+          email: email,
+          subscription: subscription,
+        },
+      },
+    });
   } catch (error) {
+    console.log(error.code);
     handleError(error);
   }
 }

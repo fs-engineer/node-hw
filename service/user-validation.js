@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-function validateNewUser(req, res, next) {
+function validateUser(req, res, next) {
   const validationRules = Joi.object({
     email: Joi.string().email().min(5).max(30).required(),
     password: Joi.string().min(5).max(20).alphanum().required(),
@@ -20,4 +20,4 @@ function validateNewUser(req, res, next) {
   next();
 }
 
-export default validateNewUser;
+export default validateUser;

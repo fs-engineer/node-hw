@@ -5,12 +5,12 @@ import validateUser from '../service/user-validation.js';
 import contactController from '../contollers/contact-controller.js';
 import tokenValidation from '../service/token-validation.js';
 
-const router = express.Router();
+router.get('/', tokenValidation, contactController.listContacts);
 
-router.post('/auth/register', validateUser, userController.createUser);
+router.get('/:contactId', validationId, contactController.getContactById);
 
-router.get('/auth/login', validateUser, userController.login);
+router.delete('/:contactId', validationId, contactController.removeContact);
 
-router.get('/auth/logout', tokenValidation, userController.logout);
+router.patch('/:contactId', validationId, contactController.updateContact);
 
 export default router;

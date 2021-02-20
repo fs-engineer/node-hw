@@ -57,7 +57,7 @@ async function createUser(req, res) {
 
 async function login(req, res) {
   const userData = req.body;
-  const secret = process.env.secret;
+  const secret = process.env.SECRET;
 
   try {
     const { _id, email, password, subscription } = await User.findOne({
@@ -74,7 +74,10 @@ async function login(req, res) {
     }
 
     if (authentication) {
-      const token = jwt.sign({ _id, email }, secret);
+      const payload = { _id };
+      const token = jwt.sign(payload, secret, { expiresIn: '1h' });
+
+      User.save;
 
       return res.status(200).json({
         Status: 'OK,',
@@ -93,6 +96,8 @@ async function login(req, res) {
     handleError(error);
   }
 }
+
+async function logout(req, res) {}
 
 async function getUserById(req, res) {
   try {
@@ -170,9 +175,10 @@ async function updateUser(req, res) {
 
 export default {
   listUser,
-  getUserById,
   createUser,
   login,
+  logout,
+  getUserById,
   removeUser,
   updateUser,
 };

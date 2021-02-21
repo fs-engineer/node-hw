@@ -18,7 +18,9 @@ get current user: 'users/current'
 
 pagination: GET request '/contacts/?page=1&limit=5', default: page=1, limit=10
 
-сервер express
+filtering contacts by subscription: GET /contacts?sub=free
+
+//////////////// сервер express
 
 использованы импорты
 

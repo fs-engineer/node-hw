@@ -96,10 +96,45 @@ async function login(req, res) {
   }
 }
 
-async function logout(req, res) {}
+async function logout(req, res) {
+  const _id = req.user._id;
+
+  try {
+    await User.findByIdAndUpdate(
+      _id,
+      { token: '' },
+      {
+        new: true,
+      },
+    );
+
+    res.status(204).send('No Content');
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+async function currentUser(req, res) {
+  const _id = req.user._id;
+  try {
+    const user = await User.findById(_id);
+    res.status(200).json({
+      Status: 'OK',
+      code: 200,
+      'Content-Type': 'application/json',
+      ResponseBody: {
+        email: user.email,
+        subscription: user.subscription,
+      },
+    });
+  } catch (error) {
+    handleError(error);
+  }
+}
 
 export default {
   createUser,
   login,
   logout,
+  currentUser,
 };

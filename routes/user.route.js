@@ -9,6 +9,8 @@ router.post('/auth/register', validateUser, userController.createUser);
 
 router.get('/auth/login', validateUser, userController.login);
 
-router.get('/auth/logout', tokenValidation, userController.logout);
+router.post('/auth/logout', tokenValidation, userController.logout);
+
+router.get('/current', tokenValidation, userController.currentUser);
 
 export default router;

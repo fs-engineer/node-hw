@@ -11,7 +11,7 @@ router.get('/', tokenValidation, contactController.listContacts);
 router.post(
   '/',
   tokenValidation,
-  contactValidation,
+  contactValidation.contactValidation,
   contactController.addContact,
 );
 
@@ -33,6 +33,7 @@ router.patch(
   '/:contactId',
   tokenValidation,
   validationId,
+  contactValidation.validateUpdateContact,
   contactController.updateContact,
 );
 

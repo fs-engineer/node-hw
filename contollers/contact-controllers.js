@@ -1,8 +1,14 @@
 import Contact from '../service/schema/contact-schema.js';
 
-async function listContacts(_req, res) {
+async function listContacts(req, res) {
   try {
-    const contacts = await Contact.find();
+    const { page, limit } = req.query;
+
+    const option = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+    };
+    const contacts = await Contact.paginate({}, option);
 
     return res.status(200).json({
       status: 'success',

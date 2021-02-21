@@ -16,6 +16,8 @@ logout: POST request 'auth/logout'
 
 get current user: 'users/current'
 
+pagination: GET request '/contacts/?page=1&limit=5'
+
 сервер express
 
 использованы импорты

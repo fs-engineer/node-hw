@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const contactSchema = new Schema(
   {
@@ -38,6 +39,7 @@ const contactSchema = new Schema(
   },
   { versionKey: false, timestamps: true },
 );
+contactSchema.plugin(mongoosePaginate);
 
 const Contact = mongoose.model('contact', contactSchema);
 

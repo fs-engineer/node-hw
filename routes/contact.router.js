@@ -1,13 +1,13 @@
 import express from 'express';
-import validationId from '../service/validationId.js';
+import validationId from '../service/id-validation.js';
 import contactValidation from '../service/contact-validation.js';
 import contactController from '../contollers/contact-controllers.js';
 
 const router = express.Router();
 
-router.get('/', contactValidation, contactController.listContacts);
+router.get('/', contactController.listContacts);
 
-router.post('/', contactController.addContact);
+router.post('/', contactValidation, contactController.addContact);
 
 router.get('/:contactId', validationId, contactController.getContactById);
 

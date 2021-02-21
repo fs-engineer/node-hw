@@ -2,14 +2,14 @@ import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(_req, res) {
   try {
-    const contact = await Contact.find();
+    const contacts = await Contact.find();
 
     return res.status(200).json({
       status: 'success',
       code: 200,
       data: {
-        total: contact.length,
-        contact,
+        total: contacts.length,
+        contacts,
       },
     });
   } catch (error) {
@@ -33,7 +33,30 @@ async function getContactById(req, res) {
     return res.status(200).json({
       status: 'success',
       code: 200,
-      data: { contact },
+      data: contact,
+    });
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+async function addContact(req, res) {
+  try {
+    const data = req.body;
+
+    const contact = await Contact.create(data);
+    const { _id, name, email, phone } = contact;
+
+    return res.status(201).json({
+      status: 'success',
+      code: 201,
+      data: {
+        _id,
+        name,
+        email,
+        phone,
+      },
+      message: 'Contact added',
     });
   } catch (error) {
     handleError(error);
@@ -43,6 +66,7 @@ async function getContactById(req, res) {
 async function removeContact(req, res) {
   try {
     const { contactId } = req.params;
+    console.log(contactId);
 
     const deletedData = await Contact.deleteOne({ _id: contactId });
 
@@ -58,7 +82,7 @@ async function removeContact(req, res) {
     return res.status(200).json({
       status: 'success',
       code: 200,
-      message: `User with id: ${userId} deleted`,
+      message: `User with id: ${contactId} deleted`,
       deletedData: deletedData.deletedCount,
     });
   } catch (error) {
@@ -84,24 +108,6 @@ async function updateContact(req, res) {
       code: 200,
       data: {
         updatedContact,
-      },
-    });
-  } catch (error) {
-    handleError(error);
-  }
-}
-
-async function addContact(req, res) {
-  try {
-    const data = req.body;
-
-    const contact = await Contact.save(data);
-
-    return res.status(201).json({
-      status: 'success',
-      code: 201,
-      data: {
-        contact,
       },
     });
   } catch (error) {

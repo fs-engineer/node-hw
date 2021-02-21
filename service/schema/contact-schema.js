@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema(
+const contactSchema = new Schema(
   {
     name: {
       type: String,
@@ -23,20 +23,22 @@ const userSchema = new Schema(
     },
     subscription: {
       type: String,
+      default: 'free',
     },
     password: {
       type: String,
-      minlength: 3,
+      minlength: 5,
       maxlength: 50,
-      required: [true, 'password required'],
+      default: 'password',
     },
     token: {
       type: String,
+      default: '',
     },
   },
   { versionKey: false, timestamps: true },
 );
 
-const Contact = mongoose.model('Contact', userSchema);
+const Contact = mongoose.model('contact', contactSchema);
 
 export default Contact;

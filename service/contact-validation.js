@@ -5,9 +5,6 @@ function contactValidation(req, res, next) {
     name: Joi.string().min(3).max(30).required(),
     email: Joi.string().email().min(5).max(30).required(),
     phone: Joi.string().min(3).max(30).required(),
-    subscription: Joi.string(),
-    password: Joi.string().min(6).max(20).required(),
-    token: Joi.string(),
   });
 
   const validationResult = validationRules.validate(req.body);

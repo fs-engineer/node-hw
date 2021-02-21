@@ -39,14 +39,24 @@ async function createUser(req, res) {
 }
 
 async function login(req, res) {
-  const userData = req.body;
+  const userReqData = req.body;
   const secret = process.env.SECRET;
 
   try {
-    const { _id, email, password, subscription } = await User.findOne({
-      email: userData.email,
+    const user = await User.findOne({
+      email: userReqData.email,
     });
-    const authentication = bCrypt.compareSync(userData.password, password);
+    if (!user) {
+      return res.status(401).json({
+        Status: 'Unauthorized',
+        code: 401,
+        ResponseBody: 'Email or password id wrong',
+      });
+    }
+    const authentication = bCrypt.compareSync(
+      userReqData.password,
+      user.password,
+    );
 
     if (!authentication) {
       return res.status(401).json({
@@ -57,10 +67,16 @@ async function login(req, res) {
     }
 
     if (authentication) {
-      const payload = { _id };
-      const token = jwt.sign(payload, secret, { expiresIn: '1h' });
+      const payload = { _id: user._id };
+      const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
-      User.save;
+      await User.findByIdAndUpdate(
+        user._id,
+        { token },
+        {
+          new: true,
+        },
+      );
 
       return res.status(200).json({
         Status: 'OK,',
@@ -68,8 +84,8 @@ async function login(req, res) {
         ResponseBody: {
           token: token,
           user: {
-            email: email,
-            subscription: subscription,
+            email: user.email,
+            subscription: user.subscription,
           },
         },
       });

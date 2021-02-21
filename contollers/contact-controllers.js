@@ -2,7 +2,19 @@ import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(req, res) {
   try {
-    const { page, limit } = req.query;
+    const { page, limit, sub } = req.query;
+
+    if (sub) {
+      const contacts = await Contact.find({ subscription: sub });
+      return res.status(200).json({
+        status: 'success',
+        code: 200,
+        data: {
+          total: contacts.length,
+          contacts,
+        },
+      });
+    }
 
     const option = {
       page: Number(page) || 1,
@@ -72,7 +84,6 @@ async function addContact(req, res) {
 async function removeContact(req, res) {
   try {
     const { contactId } = req.params;
-    console.log(contactId);
 
     const deletedData = await Contact.deleteOne({ _id: contactId });
 

@@ -17,7 +17,7 @@ server.use(express.json());
 server.use('/users', userRouter);
 server.use('/contacts', contactRouter);
 
-server.use((_, res, __) => {
+server.use((_, res) => {
   res.status(404).json({
     status: 'error',
     code: 404,
@@ -26,7 +26,7 @@ server.use((_, res, __) => {
   });
 });
 
-server.use((err, _, res, __) => {
+server.use((err, _, res) => {
   console.log(err.stack);
   res.status(500).json({
     status: 'fail',

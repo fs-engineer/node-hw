@@ -1,8 +1,20 @@
-getUserList:
+get contact list: GET request '/contacts'
 
-GET request '/users'
+get contact by id: GET request '/contacts:contactsId'
 
-addNewUser: POST request '/users/auth/register'
+add contact: POST request '/contacts'
+
+delete contact: DELETE request '/contacts/:contactId'
+
+update contact: PATCH request '/contacts/:contactId'
+
+registration new user: POST request '/users/auth/register'
+
+login: GET request '/auth/login'
+
+logout: POST request 'auth/logout'
+
+get current user: 'users/current'
 
 сервер express
 

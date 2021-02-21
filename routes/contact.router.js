@@ -1,13 +1,13 @@
 import express from 'express';
-import userController from '../contollers/user-controllers.js';
 import validationId from '../service/validationId.js';
-import validateUser from '../service/user-validation.js';
-import contactController from '../contollers/contact-controller.js';
-import tokenValidation from '../service/token-validation.js';
+import contactValidation from '../service/contact-validation.js';
+import contactController from '../contollers/contact-controllers.js';
 
 const router = express.Router();
 
-router.get('/', contactController.listContacts);
+router.get('/', contactValidation, contactController.listContacts);
+
+router.post('/', contactController.addContact);
 
 router.get('/:contactId', validationId, contactController.getContactById);
 

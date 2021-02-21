@@ -91,9 +91,28 @@ async function updateContact(req, res) {
   }
 }
 
+async function addContact(req, res) {
+  try {
+    const data = req.body;
+
+    const contact = await Contact.save(data);
+
+    return res.status(201).json({
+      status: 'success',
+      code: 201,
+      data: {
+        contact,
+      },
+    });
+  } catch (error) {
+    handleError(error);
+  }
+}
+
 export default {
   listContacts,
   getContactById,
   removeContact,
   updateContact,
+  addContact,
 };

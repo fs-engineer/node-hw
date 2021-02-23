@@ -4,14 +4,14 @@ const ObjectId = mongoose.Types.ObjectId;
 
 function validateContactId(req, res, next) {
   const {
-    params: { userId },
+    params: { contactId },
   } = req;
 
-  if (!ObjectId.isValid(userId)) {
+  if (!ObjectId.isValid(contactId)) {
     return res.status(400).json({
       status: 'error',
       code: 400,
-      message: `Id: ${userId} is not valid`,
+      message: `Id: ${contactId} is not valid`,
     });
   }
   next();

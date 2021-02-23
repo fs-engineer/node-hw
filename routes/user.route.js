@@ -1,17 +1,16 @@
 import express from 'express';
 import userController from '../contollers/user-controllers.js';
-import validationId from '../lib/validationId.js';
+import validateUser from '../service/user-validation.js';
+import tokenValidation from '../service/token-validation.js';
 
 const router = express.Router();
 
-router.get('/', userController.listContacts);
+router.post('/auth/register', validateUser, userController.createUser);
 
-router.get('/:userId', validationId, userController.getContactById);
+router.get('/auth/login', validateUser, userController.login);
 
-router.post('/', userController.addContact);
+router.post('/auth/logout', tokenValidation, userController.logout);
 
-router.delete('/:userId', validationId, userController.removeContact);
-
-router.patch('/:userId', validationId, userController.updateContact);
+router.get('/current', tokenValidation, userController.currentUser);
 
 export default router;

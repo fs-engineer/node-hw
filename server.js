@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import userRouter from './routes/user.route.js';
+import contactRouter from './routes/contact.router.js';
 
 dotenv.config();
 const server = express();
@@ -13,9 +14,10 @@ server.use(logger('dev'));
 server.use(cors());
 server.use(express.json());
 
-server.use('/contacts', userRouter);
+server.use('/users', userRouter);
+server.use('/contacts', contactRouter);
 
-server.use((_, res, __) => {
+server.use((_, res) => {
   res.status(404).json({
     status: 'error',
     code: 404,
@@ -24,7 +26,7 @@ server.use((_, res, __) => {
   });
 });
 
-server.use((err, _, res, __) => {
+server.use((err, _, res) => {
   console.log(err.stack);
   res.status(500).json({
     status: 'fail',

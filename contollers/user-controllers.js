@@ -1,115 +1,130 @@
 import { handleError } from '../lib/handlerror.js';
-import Contact from '../service/schema/user-schema.js';
+import User from '../service/schema/user-schema.js';
+import bCrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-async function listContacts(_req, res) {
+async function createUser(req, res) {
+  const data = req.body;
+
+  const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
+  const newUser = { ...data, password: password };
+
   try {
-    const contacts = await Contact.find();
-
-    return res.status(200).json({
-      status: 'success',
-      code: 200,
-      data: {
-        total: contacts.length,
-        contacts,
-      },
-    });
-  } catch (error) {
-    handleError(error);
-  }
-}
-
-async function getContactById(req, res) {
-  try {
-    const { contactId } = req.params;
-    const contact = await Contact.findById(contactId);
-
-    if (!contact) {
-      return res.status(404).json({
-        status: 'not found',
-        code: 404,
-        message: 'Not found',
-      });
-    }
-
-    return res.status(200).json({
-      status: 'success',
-      code: 200,
-      data: { contact },
-    });
-  } catch (error) {
-    handleError(error);
-  }
-}
-
-async function addContact(req, res) {
-  try {
-    const data = req.body;
-
-    const contact = await Contact.create(data);
+    const user = await User.create(newUser);
 
     return res.status(201).json({
-      status: 'success',
+      Status: 'Created',
       code: 201,
-      data: {
-        contact,
+      'Content-Type': 'application/json',
+      ResponseBody: {
+        user: {
+          email: user.email,
+          subscription: user.subscription,
+        },
       },
     });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
-        status: 'Conflict',
-        const: 409,
-        message: `This email already exists`,
+        Status: 'Conflict',
+        code: 409,
+        'Content-Type': 'application/json',
+        ResponseBody: {
+          message: 'Email in use',
+        },
       });
     }
     handleError(error);
   }
 }
 
-async function removeContact(req, res) {
+async function login(req, res) {
+  const userReqData = req.body;
+  const secret = process.env.SECRET;
+
   try {
-    const { userId } = req.params;
+    const user = await User.findOne({
+      email: userReqData.email,
+    });
+    if (!user) {
+      return res.status(401).json({
+        Status: 'Unauthorized',
+        code: 401,
+        ResponseBody: 'Email or password id wrong',
+      });
+    }
+    const authentication = bCrypt.compareSync(
+      userReqData.password,
+      user.password,
+    );
 
-    const deletedData = await Contact.deleteOne({ _id: userId });
-
-    if (deletedData.n === 0) {
-      return res.status(404).json({
-        status: 'not found',
-        code: 404,
-        message: `Id: ${userId} not found.`,
-        data: 'Bad request.',
+    if (!authentication) {
+      return res.status(401).json({
+        Status: 'Unauthorized',
+        code: 401,
+        ResponseBody: 'Email or password is wrong',
       });
     }
 
-    return res.status(200).json({
-      status: 'success',
-      code: 200,
-      message: `Contact with id: ${userId} deleted`,
-      deletedData: deletedData.deletedCount,
-    });
+    if (authentication) {
+      const payload = { _id: user._id };
+      const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+
+      await User.findByIdAndUpdate(
+        user._id,
+        { token },
+        {
+          new: true,
+        },
+      );
+
+      return res.status(200).json({
+        Status: 'OK,',
+        'Content-Type': 'application/json',
+        ResponseBody: {
+          token: token,
+          user: {
+            email: user.email,
+            subscription: user.subscription,
+          },
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error.code);
+    handleError(error);
+  }
+}
+
+async function logout(req, res) {
+  const _id = req.user._id;
+
+  try {
+    await User.findByIdAndUpdate(
+      _id,
+      { token: '' },
+      {
+        new: true,
+      },
+    );
+
+    res.status(204).send('No Content');
   } catch (error) {
     handleError(error);
   }
 }
 
-async function updateContact(req, res) {
+async function currentUser(req, res) {
+  const _id = req.user._id;
   try {
-    const { userId } = req.params;
-    const { body } = req;
-
-    const updatedContact = await Contact.findByIdAndUpdate(userId, body, {
-      new: true,
-    });
-
-    if (!updatedContact) {
-      return res.status(404).send(`ID: ${userId} not found.`);
-    }
-
-    return res.json({
-      status: 'access',
+    const user = await User.findById(_id);
+    res.status(200).json({
+      Status: 'OK',
       code: 200,
-      data: {
-        updatedContact,
+      'Content-Type': 'application/json',
+      ResponseBody: {
+        email: user.email,
+        subscription: user.subscription,
       },
     });
   } catch (error) {
@@ -118,9 +133,8 @@ async function updateContact(req, res) {
 }
 
 export default {
-  listContacts,
-  getContactById,
-  addContact,
-  removeContact,
-  updateContact,
+  createUser,
+  login,
+  logout,
+  currentUser,
 };

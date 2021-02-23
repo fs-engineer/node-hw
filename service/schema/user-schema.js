@@ -5,39 +5,22 @@ const userSchema = new Schema(
   {
     name: {
       type: String,
-      minlength: 3,
-      maxlength: 30,
-      required: [true, 'name required'],
     },
     email: {
       type: String,
-      minlength: 5,
-      maxlength: 30,
-      required: [true, 'email required'],
       unique: true,
     },
-    phone: {
-      type: String,
-      minlength: 10,
-      maxlength: 13,
-      required: [true, 'phone required'],
-    },
+    password: String,
     subscription: {
       type: String,
+      enum: ['free', 'pro', 'premium'],
+      default: 'free',
     },
-    password: {
-      type: String,
-      minlength: 3,
-      maxlength: 50,
-      required: [true, 'password required'],
-    },
-    token: {
-      type: String,
-    },
+    token: { type: String, default: '' },
   },
   { versionKey: false, timestamps: true },
 );
 
-const Contact = mongoose.model('Contact', userSchema);
+const User = mongoose.model('user', userSchema);
 
-export default Contact;
+export default User;

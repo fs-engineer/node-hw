@@ -20,7 +20,13 @@ pagination: GET request '/contacts/?page=1&limit=5', default: page=1, limit=10
 
 filtering contacts by subscription: GET /contacts?sub=free
 
-//////////////// сервер express
+//////////////// features
+
+random-avatar-generator
+
+jimp for resizing image for avatar
+
+сервер express
 
 использованы импорты
 

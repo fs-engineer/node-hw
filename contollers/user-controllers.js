@@ -1,16 +1,29 @@
-import { handleError } from '../lib/handlerror.js';
-import User from '../service/schema/user-schema.js';
 import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import Avatar from 'avatar-builder';
+import { handleError } from '../lib/handlerror.js';
+import User from '../service/schema/user-schema.js';
 
 async function createUser(req, res) {
   const data = req.body;
 
-  const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
-  const newUser = { ...data, password: password };
+  const generalAvatar = Avatar.builder(
+    Avatar.Image.margin(Avatar.Image.circleMask(Avatar.Image.identicon())),
+    128,
+    128,
+  );
+  generalAvatar
+    .create(data.email)
+    .then(buffer => fs.writeFileSync(`tmp/avatar-${data.email}.png`, buffer));
+
+  fs.rename(`tmp/avatar-${data.email}.png`, 'public/images');
+
+  // const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
+  // const newUser = { ...data, password };
 
   try {
-    const user = await User.create(newUser);
+    // const user = await User.create(newUser);
 
     return res.status(201).json({
       Status: 'Created',
@@ -18,8 +31,8 @@ async function createUser(req, res) {
       'Content-Type': 'application/json',
       ResponseBody: {
         user: {
-          email: user.email,
-          subscription: user.subscription,
+          // email: user.email,
+          // subscription: user.subscription,
         },
       },
     });

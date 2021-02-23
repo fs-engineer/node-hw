@@ -28,6 +28,9 @@ server.use(express.static(path.join(__dirname + '/public')));
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 const IMG_DIR = path.join(__dirname, 'public', 'images');
 
+const avatarPath = path.join('/tmp', `avatar-danya@gmail.com.png`);
+fs.rename(avatarPath, IMG_DIR + `avatar-danya@gmail.com.png`);
+
 //create DiskStorege
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -87,7 +90,6 @@ server.use((_, res) => {
 });
 
 server.use((err, _, res) => {
-  console.log(err.stack);
   res.status(500).json({
     status: 'fail',
     code: 500,

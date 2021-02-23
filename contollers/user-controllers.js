@@ -2,8 +2,12 @@ import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import Avatar from 'avatar-builder';
+import path from 'path';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
+
+import getDir from '../lib/dirname.js';
+const { __dirname } = getDir(import.meta.url);
 
 async function createUser(req, res) {
   const data = req.body;
@@ -17,7 +21,7 @@ async function createUser(req, res) {
     .create(data.email)
     .then(buffer => fs.writeFileSync(`tmp/avatar-${data.email}.png`, buffer));
 
-  fs.rename(`tmp/avatar-${data.email}.png`, 'public/images');
+  // const avatarPath = path.join('/tmp', `avatar-${data.email}.png`);
 
   // const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
   // const newUser = { ...data, password };

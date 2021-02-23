@@ -1,31 +1,32 @@
-import * as fs from 'fs/promises';
-import path from 'path';
-import getFileDirName from '../lib/dirname.js';
-import { handleError } from '../lib/handlerror.js';
-import { v4 as uuidv4 } from 'uuid';
-import Joi from 'joi';
+import Contact from '../service/schema/contact-schema.js';
 
-const { __dirname } = getFileDirName(import.meta.url);
-const contactsPath = path.join(__dirname, '../db/contacts.json');
-
-async function readContactDB() {
+async function listContacts(req, res) {
   try {
-    const contactsJSON = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(contactsJSON);
-    return contacts;
-  } catch (error) {
-    handleError(error);
-  }
-}
+    const { page, limit, sub } = req.query;
 
-async function listContacts(_req, res) {
-  try {
-    const contacts = await readContactDB();
+    if (sub) {
+      const contacts = await Contact.find({ subscription: sub });
+      return res.status(200).json({
+        status: 'success',
+        code: 200,
+        data: {
+          total: contacts.length,
+          contacts,
+        },
+      });
+    }
 
-    await res.status(200).json({
+    const option = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
+    };
+    const contacts = await Contact.paginate({}, option);
+
+    return res.status(200).json({
       status: 'success',
       code: 200,
       data: {
+        total: contacts.length,
         contacts,
       },
     });
@@ -36,12 +37,10 @@ async function listContacts(_req, res) {
 
 async function getContactById(req, res) {
   try {
-    const contacts = await readContactDB();
     const { contactId } = req.params;
+    const contact = await Contact.findById(contactId);
 
-    const contactIndex = contacts.findIndex(({ id }) => id === contactId);
-
-    if (contactIndex === -1) {
+    if (!contact) {
       return res.status(404).json({
         status: 'not found',
         code: 404,
@@ -49,12 +48,10 @@ async function getContactById(req, res) {
       });
     }
 
-    const contact = contacts[contactIndex];
-
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       code: 200,
-      data: { contact },
+      data: contact,
     });
   } catch (error) {
     handleError(error);
@@ -63,21 +60,21 @@ async function getContactById(req, res) {
 
 async function addContact(req, res) {
   try {
-    const contacts = await readContactDB();
-    const { name, email, phone } = req.body;
+    const data = req.body;
 
-    const contact = { id: uuidv4(), name, email, phone };
+    const contact = await Contact.create(data);
+    const { _id, name, email, phone } = contact;
 
-    contacts.push(contact);
-
-    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-    res.status(201).json({
+    return res.status(201).json({
       status: 'success',
       code: 201,
       data: {
-        contact,
+        _id,
+        name,
+        email,
+        phone,
       },
+      message: 'Contact added',
     });
   } catch (error) {
     handleError(error);
@@ -86,29 +83,25 @@ async function addContact(req, res) {
 
 async function removeContact(req, res) {
   try {
-    const contacts = await readContactDB();
-
     const { contactId } = req.params;
-    const contactIndex = contacts.findIndex(
-      contact => contact.id === contactId,
-    );
 
-    if (contactIndex === -1) {
+    const deletedData = await Contact.deleteOne({ _id: contactId });
+
+    if (deletedData.n === 0) {
       return res.status(404).json({
-        status: 'canceled',
+        status: 'not found',
         code: 404,
         message: `Id: ${contactId} not found.`,
-      });
-    } else {
-      contacts.splice(contactIndex, 1);
-      fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-      res.status(200).json({
-        status: 'success',
-        code: 200,
-        message: `Contact with id: ${contactId} deleted`,
+        data: 'Bad request.',
       });
     }
+
+    return res.status(200).json({
+      status: 'success',
+      code: 200,
+      message: `User with id: ${contactId} deleted`,
+      deletedData: deletedData.deletedCount,
+    });
   } catch (error) {
     handleError(error);
   }
@@ -116,28 +109,18 @@ async function removeContact(req, res) {
 
 async function updateContact(req, res) {
   try {
-    const contacts = await readContactDB();
     const { contactId } = req.params;
+    const { body } = req;
 
-    const contactIndex = contacts.findIndex(({ id }) => id === contactId);
+    const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
+      new: true,
+    });
 
-    if (contactIndex === -1) {
-      return res.status(404).send('Contact not found.');
+    if (!updatedContact) {
+      return res.status(404).send(`ID: ${contactId} not found.`);
     }
-    if (!req.body) {
-      return res.status(400).send('Missing fields.');
-    }
 
-    const updatedContact = {
-      ...contacts[contactIndex],
-      ...req.body,
-    };
-
-    contacts[contactIndex] = updatedContact;
-
-    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
-    res.json({
+    return res.json({
       status: 'access',
       code: 200,
       data: {
@@ -149,44 +132,10 @@ async function updateContact(req, res) {
   }
 }
 
-function validateContact(req, res, next) {
-  const validationRules = Joi.object({
-    name: Joi.string().min(3).max(30).required(),
-    email: Joi.string().email().min(5).max(30).required(),
-    phone: Joi.string().min(3).max(30).required(),
-  });
-
-  const validationResult = validationRules.validate(req.body);
-
-  if (validationResult.error) {
-    return res.status(400).send(validationResult.error);
-  }
-
-  next();
-}
-
-function validateUpdateContact(req, res, next) {
-  const validationRules = Joi.object({
-    name: Joi.string().min(3).max(30),
-    email: Joi.string().email().min(5).max(30),
-    phone: Joi.string().min(3).max(30),
-  }).min(1);
-
-  const validationResult = validationRules.validate(req.body);
-
-  if (validationResult.error) {
-    return res.status(400).send(validationResult.error);
-  }
-
-  next();
-}
-
 export default {
   listContacts,
   getContactById,
-  addContact,
   removeContact,
   updateContact,
-  validateContact,
-  validateUpdateContact,
+  addContact,
 };

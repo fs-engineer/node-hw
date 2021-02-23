@@ -28,15 +28,12 @@ server.use(express.static(path.join(__dirname + '/public')));
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 const IMG_DIR = path.join(__dirname, 'public', 'images');
 
-const avatarPath = path.join('/tmp', `avatar-danya@gmail.com.png`);
-fs.rename(avatarPath, IMG_DIR + `avatar-danya@gmail.com.png`);
-
 //create DiskStorege
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
     cb(null, UPLOAD_DIR);
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     // cb(null, file.fieldname + '-' + Date.now());
     cb(null, file.originalname);
   },

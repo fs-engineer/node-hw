@@ -6,28 +6,37 @@ import path from 'path';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
 
-import getDir from '../lib/dirname.js';
-const { __dirname } = getDir(import.meta.url);
-
 async function createUser(req, res) {
   const data = req.body;
+  const tempAvatarPath = path.join(
+    process.cwd(),
+    'tmp/',
+    `avatar-${data.email}.png`,
+  );
+  const uploadAvatarPath = path.join(
+    process.cwd(),
+    'public/images',
+    `avatar-${data.email}.png`,
+  );
 
-  const generalAvatar = Avatar.builder(
+  const avatar = Avatar.builder(
     Avatar.Image.margin(Avatar.Image.circleMask(Avatar.Image.identicon())),
     128,
     128,
   );
-  generalAvatar
+
+  await avatar
     .create(data.email)
     .then(buffer => fs.writeFileSync(`tmp/avatar-${data.email}.png`, buffer));
 
-  // const avatarPath = path.join('/tmp', `avatar-${data.email}.png`);
+  fs.renameSync(tempAvatarPath, uploadAvatarPath);
+  console.log(uploadAvatarPath);
 
-  // const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
-  // const newUser = { ...data, password };
+  const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
+  const newUser = { ...data, password, avatarURL: uploadAvatarPath };
 
   try {
-    // const user = await User.create(newUser);
+    const user = await User.create(newUser);
 
     return res.status(201).json({
       Status: 'Created',
@@ -35,8 +44,8 @@ async function createUser(req, res) {
       'Content-Type': 'application/json',
       ResponseBody: {
         user: {
-          // email: user.email,
-          // subscription: user.subscription,
+          email: user.email,
+          subscription: user.subscription,
         },
       },
     });
@@ -142,6 +151,7 @@ async function currentUser(req, res) {
       ResponseBody: {
         email: user.email,
         subscription: user.subscription,
+        avatar: user.avatarURL,
       },
     });
   } catch (error) {

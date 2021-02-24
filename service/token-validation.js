@@ -19,7 +19,7 @@ async function tokenValidation(req, res, next) {
   const secret = process.env.SECRET;
 
   try {
-    const payload = await jwt.verify(token, secret);
+    const payload = jwt.verify(token, secret);
     const user = await User.findById(payload._id);
 
     if (!user) {

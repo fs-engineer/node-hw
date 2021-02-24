@@ -1,20 +1,17 @@
 import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-// import fs from 'fs';
-// import path from 'path';
-// import avatar from '../lib/generateUserAvatar.js';
 import generateUserAvatar from '../lib/generateUserAvatar.js';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
 
 async function createUser(req, res) {
   const data = req.body;
-  const uploadAvatarPath = await generateUserAvatar(data);
+  const avatarPath = await generateUserAvatar(data);
   const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
   const newUser = {
     ...data,
     password,
-    avatarURL: uploadAvatarPath,
+    avatarURL: avatarPath,
   };
 
   try {

@@ -32,6 +32,7 @@ async function tokenValidation(req, res, next) {
         },
       });
     }
+
     req.user = user;
   } catch (error) {
     return res.status(403).json({

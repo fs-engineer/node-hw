@@ -3,6 +3,7 @@ import jimp from 'jimp';
 import path from 'path';
 import { IMG_DIR } from '../lib/dirPaths.js';
 import { handleError } from '../lib/handlerror.js';
+import changeUserAvatar from './saveAvatarUrlToUser.js';
 
 async function convertAndUploadAvatar(req, res) {
   try {
@@ -22,10 +23,18 @@ async function convertAndUploadAvatar(req, res) {
       const imageExtansion = file.originalname.slice(-4);
       const newImageName = Date.now() + imageExtansion;
 
-      await fs.rename(file.path, path.join(IMG_DIR, newImageName));
-    }
+      const uploadsPath = path.join(IMG_DIR, newImageName);
 
-    res.send('Image uploaded');
+      await fs.rename(file.path, uploadsPath);
+
+      const updatedURL = await changeUserAvatar(req, uploadsPath);
+
+      res.status(200).json({
+        ResponseBody: {
+          avatarURL: updatedURL,
+        },
+      });
+    }
   } catch (err) {
     handleError(err);
   }

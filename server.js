@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import multer from 'multer';
 import jimp from 'jimp';
 import createDirnameAndFileName from './lib/dirname.js';
+import createFolderIsNotExist from './lib/createFolderIsNotExist.js';
 import userRouter from './routes/user.route.js';
 import contactRouter from './routes/contact.router.js';
 import { handleError } from './lib/handlerror.js';
@@ -15,13 +16,14 @@ import { handleError } from './lib/handlerror.js';
 dotenv.config();
 const server = express();
 
+const { __dirname } = createDirnameAndFileName(import.meta.url);
+
 //init midlleware
 server.use(logger('dev'));
 server.use(cors());
 server.use(express.json());
 
 //static
-const { __dirname } = createDirnameAndFileName(import.meta.url);
 server.use(express.static(path.join(__dirname + '/public')));
 
 //multer
@@ -30,10 +32,10 @@ const IMG_DIR = path.join(__dirname, 'public', 'images');
 
 //create DiskStorege
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
+  destination: (req, file, cb) => {
     cb(null, UPLOAD_DIR);
   },
-  filename: (_req, file, cb) => {
+  filename: (req, file, cb) => {
     // cb(null, file.fieldname + '-' + Date.now());
     cb(null, file.originalname);
   },
@@ -42,7 +44,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-
   fileFilter: (_, file, cb) => {
     if (file.mimetype.includes('image')) {
       cb(null, true);
@@ -54,11 +55,12 @@ const upload = multer({
 });
 
 server.post('/upload', upload.single('avatar'), async (req, res, next) => {
+  console.log(req);
   if (req.file) {
     const { file } = req;
-    const img = jimp.read(file.path);
+    const img = await jimp.read(file.path);
 
-    await (await img)
+    await img
       .autocrop()
       .cover(
         250,
@@ -69,14 +71,15 @@ server.post('/upload', upload.single('avatar'), async (req, res, next) => {
 
     await fs.rename(file.path, path.join(IMG_DIR, file.originalname));
   }
-  // console.log(req.body);
-  // console.log(req.file);
+
   res.redirect('/');
 });
 
+//routes
 server.use('/users', userRouter);
 server.use('/contacts', contactRouter);
 
+//errors
 server.use((_, res) => {
   res.status(404).json({
     status: 'error',
@@ -95,19 +98,7 @@ server.use((err, _, res) => {
   });
 });
 
-const isAccessible = async path => {
-  return fs
-    .access(path)
-    .then(() => true)
-    .catch(() => false);
-};
-
-const createFolderIsNotExist = async folder => {
-  if (!(await isAccessible(folder))) {
-    await fs.mkdir(folder);
-  }
-};
-
+//connect mongo db and start server
 const PORT = process.env.PORT || 3000;
 const DATA_HOST = process.env.DATA_HOST;
 

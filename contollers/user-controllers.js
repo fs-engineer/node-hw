@@ -1,39 +1,21 @@
 import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import fs from 'fs';
-import Avatar from 'avatar-builder';
-import path from 'path';
+// import fs from 'fs';
+// import path from 'path';
+// import avatar from '../lib/generateUserAvatar.js';
+import generateUserAvatar from '../lib/generateUserAvatar.js';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
 
 async function createUser(req, res) {
   const data = req.body;
-  const tempAvatarPath = path.join(
-    process.cwd(),
-    'tmp/',
-    `avatar-${data.email}.png`,
-  );
-  const uploadAvatarPath = path.join(
-    process.cwd(),
-    'public/images',
-    `avatar-${data.email}.png`,
-  );
-
-  const avatar = Avatar.builder(
-    Avatar.Image.margin(Avatar.Image.circleMask(Avatar.Image.identicon())),
-    128,
-    128,
-  );
-
-  await avatar
-    .create(data.email)
-    .then(buffer => fs.writeFileSync(`tmp/avatar-${data.email}.png`, buffer));
-
-  fs.renameSync(tempAvatarPath, uploadAvatarPath);
-  console.log(uploadAvatarPath);
-
+  const uploadAvatarPath = await generateUserAvatar(data);
   const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
-  const newUser = { ...data, password, avatarURL: uploadAvatarPath };
+  const newUser = {
+    ...data,
+    password,
+    avatarURL: uploadAvatarPath,
+  };
 
   try {
     const user = await User.create(newUser);
@@ -46,6 +28,7 @@ async function createUser(req, res) {
         user: {
           email: user.email,
           subscription: user.subscription,
+          avatarURL: user.avatarURL,
         },
       },
     });
@@ -126,13 +109,7 @@ async function logout(req, res) {
   const _id = req.user._id;
 
   try {
-    await User.findByIdAndUpdate(
-      _id,
-      { token: '' },
-      {
-        new: true,
-      },
-    );
+    await User.findByIdAndUpdate(_id, { token: '' });
 
     res.status(204).send('No Content');
   } catch (error) {
@@ -159,9 +136,17 @@ async function currentUser(req, res) {
   }
 }
 
+async function updateAvatar(req, res) {
+  console.log(req.file);
+  res.status(200).json({
+    reqBody: req.user,
+  });
+}
+
 export default {
   createUser,
   login,
   logout,
   currentUser,
+  updateAvatar,
 };

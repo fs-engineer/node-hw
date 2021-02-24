@@ -4,19 +4,17 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import path from 'path';
-import { UPLOAD_DIR, IMG_DIR } from './lib/dirPaths.js';
-import createDirnameAndFileName from './lib/dirname.js';
+import { UPLOAD_DIR, IMG_DIR, PUBLIC_DIR } from './lib/dirPaths.js';
 import createFolderIsNotExist from './lib/createFolderIsNotExist.js';
 import userRouter from './routes/user.route.js';
 import contactRouter from './routes/contact.router.js';
 import { handleError } from './lib/handlerror.js';
 import createDiskStorage from './lib/createDiskStorage.js';
-import uploadAvatar from './lib/uploadAvatar.js';
+import convertAndUploadAvatar from './service/convertAndUploadAvatar.js';
+import tokenValidation from './service/token-validation.js';
 
 dotenv.config();
 const server = express();
-
-const { __dirname } = createDirnameAndFileName(import.meta.url);
 
 //init midlleware
 server.use(logger('dev'));
@@ -24,12 +22,17 @@ server.use(cors());
 server.use(express.json());
 
 //static
-server.use(express.static(path.join(__dirname + '/public')));
+server.use(express.static(PUBLIC_DIR));
 
 //multer Disk storage
 const upload = createDiskStorage(UPLOAD_DIR);
 
-server.post('/upload', upload.single('avatar'), uploadAvatar);
+server.patch(
+  '/users/avatars',
+  upload.single('avatar'),
+  tokenValidation,
+  convertAndUploadAvatar,
+);
 
 //routes
 server.use('/users', userRouter);

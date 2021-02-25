@@ -20,6 +20,9 @@ pagination: GET request '/contacts/?page=1&limit=5', default: page=1, limit=10
 
 sorting contacts by subscription: GET /contacts?sortBy or /contacts?sortByDesk
 
+filtration contact: GET /contacts?filter=name or /contacts?filter=name |
+subscription
+
 //////////////// features
 
 random-avatar-generator

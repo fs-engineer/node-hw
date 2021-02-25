@@ -1,3 +1,4 @@
+import { handleError } from '../lib/handlerror.js';
 import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(req, res) {
@@ -93,7 +94,7 @@ async function removeContact(req, res) {
     return res.status(200).json({
       status: 'success',
       code: 200,
-      message: `User with id: ${contactId} deleted`,
+      message: `Contact with id: ${contactId} deleted`,
       deletedData: deletedData.deletedCount,
     });
   } catch (error) {

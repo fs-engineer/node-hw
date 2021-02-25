@@ -32,10 +32,8 @@ const contactSchema = new Schema(
       maxlength: 50,
       default: 'password',
     },
-    token: {
-      type: String,
-      default: '',
-    },
+
+    owner: { type: mongoose.SchemaTypes.ObjectId, ref: 'user' },
   },
   { versionKey: false, timestamps: true },
 );

@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-import bCrypt from 'bcryptjs';
-const SALT_FACTOR = 6;
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
@@ -30,8 +28,7 @@ const userSchema = new Schema(
       enum: ['free', 'pro', 'premium'],
       default: 'free',
     },
-    token: { type: String, default: '' },
-    owner: { type: mongoose.SchemaTypes.ObjectId, ref: 'user' },
+    token: { type: String, default: null },
   },
   { versionKey: false, timestamps: true },
 );

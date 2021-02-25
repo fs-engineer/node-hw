@@ -74,7 +74,7 @@ async function login(req, res) {
 
     if (authentication) {
       const payload = { _id: user._id };
-      const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+      const token = jwt.sign(payload, secret, { expiresIn: '1h' });
 
       await User.findByIdAndUpdate(
         user._id,
@@ -108,7 +108,10 @@ async function logout(req, res) {
   try {
     await User.findByIdAndUpdate(_id, { token: null });
 
-    res.status(204).send('No Content');
+    res.status(204).json({
+      status: 204,
+      message: 'No Content',
+    });
   } catch (error) {
     handleError(error);
   }

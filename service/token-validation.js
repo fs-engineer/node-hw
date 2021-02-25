@@ -22,7 +22,7 @@ async function tokenValidation(req, res, next) {
     const payload = jwt.verify(token, secret);
     const user = await User.findById(payload._id);
 
-    if (!user) {
+    if (!user || !user.token) {
       return res.status(403).json({
         Status: 'Unauthorized',
         code: 401,

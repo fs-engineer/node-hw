@@ -69,7 +69,10 @@ mongoose
     useFindAndModify: false,
   })
   .then(() => console.log('Database connection successful'))
-  .catch(err => handleError(err));
+  .catch(err => {
+    console.log('Database disconnected');
+    handleError(err);
+  });
 
 server.listen(PORT, async () => {
   try {

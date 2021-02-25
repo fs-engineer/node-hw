@@ -108,10 +108,7 @@ async function logout(req, res) {
   try {
     await User.findByIdAndUpdate(_id, { token: null });
 
-    res.status(204).json({
-      status: 204,
-      message: 'No Content',
-    });
+    res.status(204);
   } catch (error) {
     handleError(error);
   }

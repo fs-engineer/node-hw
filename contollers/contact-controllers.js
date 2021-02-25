@@ -2,23 +2,15 @@ import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(req, res) {
   try {
-    const { page, limit, sub } = req.query;
-
-    if (sub) {
-      const contacts = await Contact.find({ subscription: sub });
-      return res.status(200).json({
-        status: 'success',
-        code: 200,
-        data: {
-          total: contacts.length,
-          contacts,
-        },
-      });
-    }
+    const { page, limit, sortBy, sortByDesc } = req.query;
 
     const option = {
       page: Number(page) || 1,
       limit: Number(limit) || 10,
+      sort: {
+        ...(sortBy ? { [`${sortBy}`]: 1 } : {}),
+        ...(sortByDesc ? { [`${sortByDesc}`]: -1 } : {}),
+      },
     };
     const contacts = await Contact.paginate({}, option);
 

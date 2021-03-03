@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import jimp from 'jimp';
 import path from 'path';
-import { IMG_DIR } from '../lib/dirPaths.js';
+import { IMG_DIR } from '../helpers/constants.js';
 import { handleError } from '../lib/handlerror.js';
 import changeUserAvatar from './saveAvatarUrlToUser.js';
 

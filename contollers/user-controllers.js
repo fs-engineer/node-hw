@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import generateUserAvatar from '../lib/generateUserAvatar.js';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
+import { httpCode } from '../helpers/constants.js';
 
 async function createUser(req, res) {
   const data = req.body;
@@ -17,7 +18,7 @@ async function createUser(req, res) {
   try {
     const user = await User.create(newUser);
 
-    return res.status(201).json({
+    return res.status(httpCode.CREATED).json({
       Status: 'Created',
       code: 201,
       'Content-Type': 'application/json',
@@ -31,9 +32,9 @@ async function createUser(req, res) {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(409).json({
+      return res.status(httpCode.CONFLICT).json({
         Status: 'Conflict',
-        code: 409,
+        code: httpCode.CONFLICT,
         'Content-Type': 'application/json',
         ResponseBody: {
           message: 'Email in use',
@@ -59,9 +60,9 @@ async function login(req, res) {
     );
 
     if (!user || !authentication) {
-      return res.status(401).json({
+      return res.status(httpCode.UNATHORIZED).json({
         Status: 'Unauthorized',
-        code: 401,
+        code: httpCode.UNATHORIZED,
         ResponseBody: 'Email or password id wrong',
       });
     }
@@ -78,12 +79,12 @@ async function login(req, res) {
         },
       );
 
-      return res.status(200).json({
+      return res.status(httpCode.OK).json({
         Status: 'OK,',
         'Content-Type': 'application/json',
         ResponseBody: {
           token: token,
-          code: 200,
+          code: httpCode.OK,
           user: {
             email: user.email,
             subscription: user.subscription,
@@ -103,7 +104,7 @@ async function logout(req, res) {
   try {
     await User.findByIdAndUpdate(_id, { token: null });
 
-    res.status(204);
+    res.status(httpCode.NO_CONTENT);
   } catch (error) {
     handleError(error);
   }
@@ -113,9 +114,9 @@ async function currentUser(req, res) {
   const _id = req.user._id;
   try {
     const user = await User.findById(_id);
-    res.status(200).json({
+    res.status(httpCode.OK).json({
       Status: 'OK',
-      code: 200,
+      code: httpCode.OK,
       'Content-Type': 'application/json',
       ResponseBody: {
         email: user.email,
@@ -130,7 +131,7 @@ async function currentUser(req, res) {
 
 async function updateAvatar(req, res) {
   console.log(req.file);
-  res.status(200).json({
+  res.status(httpCode.OK).json({
     reqBody: req.user,
   });
 }

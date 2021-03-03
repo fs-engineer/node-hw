@@ -3,7 +3,7 @@ import logger from 'morgan';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { UPLOAD_DIR, IMG_DIR, PUBLIC_DIR } from './lib/dirPaths.js';
+import { UPLOAD_DIR, IMG_DIR, PUBLIC_DIR } from './helpers/constants.js';
 import createFolderIsNotExist from './lib/createFolderIsNotExist.js';
 import userRouter from './routes/user.route.js';
 import contactRouter from './routes/contact.router.js';

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bCrypt from 'bcryptjs';
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
@@ -12,10 +13,6 @@ const userSchema = new Schema(
     email: {
       type: String,
       unique: true,
-      // validate() {
-      //   const re = /\S+@\S+\.\S+/;
-      //   return re.test(String(value).toLowerCase());
-      // },
     },
     password: {
       type: String,
@@ -33,15 +30,10 @@ const userSchema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
-// userSchema.pre('save', async function (next) {
-//   if (!this.isModified('password')) return next();
-
-//   this.password = await bCrypt.hash(
-//     this.password,
-//     bCrypt.genSaltSync(SALT_FACTOR),
-//   );
-//   next();
-// });
+//add method for pass validation
+userSchema.method.validPassword = async function (password) {
+  return await bCrypt.compare(password, this.password);
+};
 
 const User = mongoose.model('user', userSchema);
 

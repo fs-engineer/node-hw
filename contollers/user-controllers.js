@@ -52,23 +52,17 @@ async function login(req, res) {
     const user = await User.findOne({
       email: userReqData.email,
     });
-    if (!user) {
-      return res.status(401).json({
-        Status: 'Unauthorized',
-        code: 401,
-        ResponseBody: 'Email or password id wrong',
-      });
-    }
+
     const authentication = bCrypt.compareSync(
       userReqData.password,
       user.password,
     );
 
-    if (!authentication) {
+    if (!user || !authentication) {
       return res.status(401).json({
         Status: 'Unauthorized',
         code: 401,
-        ResponseBody: 'Email or password is wrong',
+        ResponseBody: 'Email or password id wrong',
       });
     }
 
@@ -89,6 +83,7 @@ async function login(req, res) {
         'Content-Type': 'application/json',
         ResponseBody: {
           token: token,
+          code: 200,
           user: {
             email: user.email,
             subscription: user.subscription,

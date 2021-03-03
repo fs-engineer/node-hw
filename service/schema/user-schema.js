@@ -22,7 +22,10 @@ const userSchema = new Schema(
     avatarURL: String,
     subscription: {
       type: String,
-      enum: ['free', 'pro', 'premium'],
+      enum: {
+        values: ['free', 'pro', 'premium'],
+        message: 'Wrong subscription',
+      },
       default: 'free',
     },
     token: { type: String, default: null },

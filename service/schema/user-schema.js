@@ -7,12 +7,16 @@ const userSchema = new Schema(
     name: {
       type: String,
       minlength: 3,
-      required: [true, 'Email is required'],
       default: 'Guest',
     },
     email: {
       type: String,
+      required: [true, 'Email is required'],
       unique: true,
+      validate(value) {
+        const email = /\S+@\S+\.\S+/;
+        return email.test(String(value).toLowerCase());
+      },
     },
     password: {
       type: String,

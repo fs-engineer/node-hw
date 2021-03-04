@@ -3,10 +3,11 @@ import { handleError } from '../lib/handlerror.js';
 import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(req, res) {
+  const userId = req.user._id;
   try {
     const { page, limit, sortBy, sortByDesc, filter } = req.query;
 
-    const option = {
+    const options = {
       page: Number(page) || 1,
       limit: Number(limit) || 10,
       sort: {
@@ -14,9 +15,13 @@ async function listContacts(req, res) {
         ...(sortByDesc ? { [`${sortByDesc}`]: -1 } : {}),
       },
       select: filter ? filter.split('|').join(' ') : '',
+      populate: {
+        path: 'owner',
+        select: 'name email phone',
+      },
     };
 
-    const contacts = await Contact.paginate({}, option);
+    const contacts = await Contact.paginate({ owner: userId }, options);
 
     return res.status(httpCode.OK).json({
       status: 'success',
@@ -57,8 +62,9 @@ async function getContactById(req, res) {
 async function addContact(req, res) {
   try {
     const data = req.body;
+    const userId = req.user._id;
 
-    const contact = await Contact.create(data);
+    const contact = await Contact.create({ ...data, owner: userId });
     const { _id, name, email, phone } = contact;
 
     return res.status(httpCode.CREATED).json({

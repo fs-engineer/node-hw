@@ -23,7 +23,7 @@ server.use(express.json());
 //static
 server.use(express.static(PUBLIC_DIR));
 
-//multer Disk storage
+// multer Disk storage
 const upload = createDiskStorage(UPLOAD_DIR);
 
 server.patch(

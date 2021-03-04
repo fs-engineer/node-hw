@@ -93,7 +93,6 @@ async function login(req, res) {
       });
     }
   } catch (error) {
-    console.log(error.code);
     handleError(error);
   }
 }
@@ -129,17 +128,9 @@ async function currentUser(req, res) {
   }
 }
 
-async function updateAvatar(req, res) {
-  console.log(req.file);
-  res.status(httpCode.OK).json({
-    reqBody: req.user,
-  });
-}
-
 export default {
   createUser,
   login,
   logout,
   currentUser,
-  updateAvatar,
 };

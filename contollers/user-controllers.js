@@ -20,7 +20,7 @@ async function createUser(req, res) {
 
     return res.status(httpCode.CREATED).json({
       Status: 'Created',
-      code: 201,
+      code: httpCode.CREATED,
       'Content-Type': 'application/json',
       ResponseBody: {
         user: {

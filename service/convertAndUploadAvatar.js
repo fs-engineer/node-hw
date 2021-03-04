@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import jimp from 'jimp';
 import path from 'path';
-import { IMG_DIR } from '../helpers/constants.js';
+import { httpCode, IMG_DIR } from '../helpers/constants.js';
 import { handleError } from '../lib/handlerror.js';
 import changeUserAvatar from './saveAvatarUrlToUser.js';
 
@@ -29,7 +29,7 @@ async function convertAndUploadAvatar(req, res) {
 
       const updatedURL = await changeUserAvatar(req, uploadsPath);
 
-      res.status(200).json({
+      res.status(httpCode.OK).json({
         ResponseBody: {
           avatarURL: updatedURL,
         },

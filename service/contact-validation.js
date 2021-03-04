@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { httpCode } from '../helpers/constants.js';
 
 function contactValidation(req, res, next) {
   const validationRules = Joi.object({
@@ -10,7 +11,7 @@ function contactValidation(req, res, next) {
   const validationResult = validationRules.validate(req.body);
 
   if (validationResult.error) {
-    return res.status(400).send(validationResult.error);
+    return res.status(httpCode.BAD_REQUEST).send(validationResult.error);
   }
 
   next();
@@ -28,7 +29,7 @@ function validateUpdateContact(req, res, next) {
   const validationResult = validationRules.validate(req.body);
 
   if (validationResult.error) {
-    return res.status(400).send(validationResult.error);
+    return res.status(httpCode.BAD_REQUEST).send(validationResult.error);
   }
 
   next();

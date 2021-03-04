@@ -13,6 +13,4 @@ router.post('/auth/logout', tokenValidation, userController.logout);
 
 router.get('/current', tokenValidation, userController.currentUser);
 
-router.patch('/avatar', userController.updateAvatar);
-
 export default router;

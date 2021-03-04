@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { httpCode } from '../helpers/constants.js';
 
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -8,9 +9,9 @@ function validateContactId(req, res, next) {
   } = req;
 
   if (!ObjectId.isValid(contactId)) {
-    return res.status(400).json({
+    return res.status(httpCode.BAD_REQUEST).json({
       status: 'error',
-      code: 400,
+      code: httpCode.BAD_REQUEST,
       message: `Id: ${contactId} is not valid`,
     });
   }

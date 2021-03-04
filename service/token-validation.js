@@ -1,13 +1,14 @@
 import jwt from 'jsonwebtoken';
 import User from '../service/schema/user-schema.js';
+import { httpCode } from '../helpers/constants.js';
 
 async function tokenValidation(req, res, next) {
   const authHeader = req.get('Authorization');
 
   if (!authHeader) {
-    return res.status(403).json({
+    return res.status(httpCode.UNATHORIZED).json({
       Status: 'Unauthorized',
-      code: 401,
+      code: httpCode.UNATHORIZED,
       'Content-Type': 'application/json',
       ResponseBody: {
         message: 'Not authorized',
@@ -23,9 +24,9 @@ async function tokenValidation(req, res, next) {
     const user = await User.findById(payload._id);
 
     if (!user || !user.token) {
-      return res.status(403).json({
+      return res.status(httpCode.UNATHORIZED).json({
         Status: 'Unauthorized',
-        code: 401,
+        code: httpCode.UNATHORIZED,
         'Content-Type': 'application/json',
         ResponseBody: {
           message: 'Not authorized',
@@ -35,9 +36,9 @@ async function tokenValidation(req, res, next) {
 
     req.user = user;
   } catch (error) {
-    return res.status(403).json({
+    return res.status(httpCode.UNATHORIZED).json({
       Status: 'Unauthorized',
-      code: 401,
+      code: httpCode.UNATHORIZED,
       'Content-Type': 'application/json',
       ResponseBody: {
         message: 'Not authorized',

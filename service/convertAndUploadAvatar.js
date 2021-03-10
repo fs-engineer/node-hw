@@ -20,10 +20,7 @@ async function convertAndUploadAvatar(req, res) {
         )
         .writeAsync(file.path);
 
-      const imageExtansion = file.originalname.slice(-4);
-      const newImageName = Date.now() + imageExtansion;
-
-      const uploadsPath = path.join(IMG_DIR, newImageName);
+      const uploadsPath = path.join(IMG_DIR, file.originalname);
 
       await fs.rename(file.path, uploadsPath);
 

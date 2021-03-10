@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bCrypt from 'bcryptjs';
+import gravatar from 'gravatar';
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
@@ -23,7 +24,12 @@ const userSchema = new Schema(
       required: [true, 'Password is required'],
       minlength: 5,
     },
-    avatarURL: String,
+    avatarURL: {
+      type: String,
+      default: function () {
+        return gravatar.url(this.email, { s: '250' }, true);
+      },
+    },
     subscription: {
       type: String,
       enum: {
@@ -34,7 +40,7 @@ const userSchema = new Schema(
     },
     token: { type: String, default: null },
   },
-  { versionKey: false, timestamps: true },
+  { versionKey: true, timestamps: true },
 );
 
 //add method for pass validation

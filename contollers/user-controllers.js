@@ -7,16 +7,17 @@ import { httpCode } from '../helpers/constants.js';
 
 async function createUser(req, res) {
   const data = req.body;
-  const avatarPath = await generateUserAvatar(data);
+
+  // const avatarPath = await generateUserAvatar(data);
   const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
   const newUser = {
     ...data,
     password,
-    avatarURL: avatarPath,
   };
 
   try {
     const user = await User.create(newUser);
+    // console.log(user);
 
     return res.status(httpCode.CREATED).json({
       Status: 'Created',

@@ -20,21 +20,13 @@ server.use(logger('dev'));
 server.use(cors());
 server.use(express.json());
 
-//static
-server.use(express.static(PUBLIC_DIR));
-
 // multer Disk storage
 const upload = createDiskStorage(UPLOAD_DIR);
 
-server.patch(
-  '/users/avatars',
-  upload.single('avatar'),
-  tokenValidation,
-  convertAndUploadAvatar,
-);
-
+//static
+server.use('/images', express.static('public/images'));
 //routes
-server.use('/users', userRouter);
+server.use('/users', upload.single('avatar'), userRouter);
 server.use('/contacts', contactRouter);
 
 //errors
@@ -42,7 +34,7 @@ server.use((_, res) => {
   res.status(404).json({
     status: 'error',
     code: 404,
-    message: 'Use api on routes: /contacts',
+    message: 'Use another api route',
     data: 'Not found',
   });
 });

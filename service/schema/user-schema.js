@@ -40,7 +40,7 @@ const userSchema = new Schema(
     },
     token: { type: String, default: null },
   },
-  { versionKey: true, timestamps: true },
+  { versionKey: false, timestamps: true },
 );
 
 //add method for pass validation

@@ -1,14 +1,13 @@
 import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import generateUserAvatar from '../lib/generateUserAvatar.js';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
 import { httpCode } from '../helpers/constants.js';
+import uploadAvatarToCloud from '../service/convertAndUploadAvatar.js';
 
 async function createUser(req, res) {
   const data = req.body;
 
-  // const avatarPath = await generateUserAvatar(data);
   const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
   const newUser = {
     ...data,
@@ -17,7 +16,6 @@ async function createUser(req, res) {
 
   try {
     const user = await User.create(newUser);
-    // console.log(user);
 
     return res.status(httpCode.CREATED).json({
       Status: 'Created',
@@ -129,9 +127,38 @@ async function currentUser(req, res) {
   }
 }
 
+async function avatar(req, res, next) {
+  try {
+    const { _id } = req.user;
+    const {
+      public_id: imgCloudId,
+      secure_url: avatarURL,
+    } = await uploadAvatarToCloud(req);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      {
+        imgCloudId,
+        avatarURL,
+      },
+      { new: true },
+    );
+
+    res.status(httpCode.OK).json({
+      ResponseBody: {
+        avatarURL: updatedUser.avatarURL,
+      },
+    });
+  } catch (err) {
+    handleError(err);
+    next(err);
+  }
+}
+
 export default {
   createUser,
   login,
   logout,
   currentUser,
+  avatar,
 };

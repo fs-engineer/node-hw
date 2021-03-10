@@ -2,7 +2,7 @@ import express from 'express';
 import userController from '../contollers/user-controllers.js';
 import validateUser from '../service/user-validation.js';
 import tokenValidation from '../service/token-validation.js';
-import convertAndUploadAvatar from '../service/convertAndUploadAvatar.js';
+import uploadAvatarToCloud from '../service/convertAndUploadAvatar.js';
 
 const router = express.Router();
 
@@ -14,6 +14,6 @@ router.post('/auth/logout', tokenValidation, userController.logout);
 
 router.get('/current', tokenValidation, userController.currentUser);
 
-router.post('/avatars', tokenValidation, convertAndUploadAvatar);
+router.patch('/avatars', tokenValidation, userController.avatar);
 
 export default router;

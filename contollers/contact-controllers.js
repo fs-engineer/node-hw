@@ -1,30 +1,31 @@
+import { httpCode } from '../helpers/constants.js';
+import { handleError } from '../lib/handlerror.js';
 import Contact from '../service/schema/contact-schema.js';
 
 async function listContacts(req, res) {
+  const userId = req.user._id;
   try {
-    const { page, limit, sub } = req.query;
+    const { page, limit, sortBy, sortByDesc, filter } = req.query;
 
-    if (sub) {
-      const contacts = await Contact.find({ subscription: sub });
-      return res.status(200).json({
-        status: 'success',
-        code: 200,
-        data: {
-          total: contacts.length,
-          contacts,
-        },
-      });
-    }
-
-    const option = {
+    const options = {
       page: Number(page) || 1,
       limit: Number(limit) || 10,
+      sort: {
+        ...(sortBy ? { [`${sortBy}`]: 1 } : {}),
+        ...(sortByDesc ? { [`${sortByDesc}`]: -1 } : {}),
+      },
+      select: filter ? filter.split('|').join(' ') : '',
+      populate: {
+        path: 'owner',
+        select: 'name email phone',
+      },
     };
-    const contacts = await Contact.paginate({}, option);
 
-    return res.status(200).json({
+    const contacts = await Contact.paginate({ owner: userId }, options);
+
+    return res.status(httpCode.OK).json({
       status: 'success',
-      code: 200,
+      code: httpCode.OK,
       data: {
         total: contacts.length,
         contacts,
@@ -41,16 +42,16 @@ async function getContactById(req, res) {
     const contact = await Contact.findById(contactId);
 
     if (!contact) {
-      return res.status(404).json({
+      return res.status(httpCode.NOT_FOUND).json({
         status: 'not found',
-        code: 404,
+        code: httpCode.NOT_FOUND,
         message: 'Not found',
       });
     }
 
-    return res.status(200).json({
+    return res.status(httpCode.OK).json({
       status: 'success',
-      code: 200,
+      code: httpCode.OK,
       data: contact,
     });
   } catch (error) {
@@ -61,13 +62,14 @@ async function getContactById(req, res) {
 async function addContact(req, res) {
   try {
     const data = req.body;
+    const userId = req.user._id;
 
-    const contact = await Contact.create(data);
+    const contact = await Contact.create({ ...data, owner: userId });
     const { _id, name, email, phone } = contact;
 
-    return res.status(201).json({
+    return res.status(httpCode.CREATED).json({
       status: 'success',
-      code: 201,
+      code: httpCode.CREATED,
       data: {
         _id,
         name,
@@ -88,18 +90,18 @@ async function removeContact(req, res) {
     const deletedData = await Contact.deleteOne({ _id: contactId });
 
     if (deletedData.n === 0) {
-      return res.status(404).json({
+      return res.status(httpCode.NOT_FOUND).json({
         status: 'not found',
-        code: 404,
+        code: httpCode.NOT_FOUND,
         message: `Id: ${contactId} not found.`,
         data: 'Bad request.',
       });
     }
 
-    return res.status(200).json({
+    return res.status(httpCode.OK).json({
       status: 'success',
-      code: 200,
-      message: `User with id: ${contactId} deleted`,
+      code: httpCode.OK,
+      message: `Contact with id: ${contactId} deleted`,
       deletedData: deletedData.deletedCount,
     });
   } catch (error) {
@@ -117,12 +119,12 @@ async function updateContact(req, res) {
     });
 
     if (!updatedContact) {
-      return res.status(404).send(`ID: ${contactId} not found.`);
+      return res.status(httpCode.NOT_FOUND).send(`ID: ${contactId} not found.`);
     }
 
     return res.json({
       status: 'access',
-      code: 200,
+      code: httpCode.OK,
       data: {
         updatedContact,
       },

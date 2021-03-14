@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-const Schema = mongoose.Schema;
+const { Schema, SchemaTypes } = mongoose;
 import mongoosePaginate from 'mongoose-paginate-v2';
 
 const contactSchema = new Schema(
@@ -32,9 +32,9 @@ const contactSchema = new Schema(
       maxlength: 50,
       default: 'password',
     },
-    token: {
-      type: String,
-      default: '',
+    owner: {
+      type: SchemaTypes.ObjectId,
+      ref: 'user',
     },
   },
   { versionKey: false, timestamps: true },

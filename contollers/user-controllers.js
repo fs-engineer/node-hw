@@ -1,33 +1,39 @@
-import { handleError } from '../lib/handlerror.js';
-import User from '../service/schema/user-schema.js';
 import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { handleError } from '../lib/handlerror.js';
+import User from '../service/schema/user-schema.js';
+import { httpCode } from '../helpers/constants.js';
+import uploadAvatarToCloud from '../service/convertAndUploadAvatar.js';
 
 async function createUser(req, res) {
   const data = req.body;
 
   const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
-  const newUser = { ...data, password: password };
+  const newUser = {
+    ...data,
+    password,
+  };
 
   try {
     const user = await User.create(newUser);
 
-    return res.status(201).json({
+    return res.status(httpCode.CREATED).json({
       Status: 'Created',
-      code: 201,
+      code: httpCode.CREATED,
       'Content-Type': 'application/json',
       ResponseBody: {
         user: {
           email: user.email,
           subscription: user.subscription,
+          avatarURL: user.avatarURL,
         },
       },
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(409).json({
+      return res.status(httpCode.CONFLICT).json({
         Status: 'Conflict',
-        code: 409,
+        code: httpCode.CONFLICT,
         'Content-Type': 'application/json',
         ResponseBody: {
           message: 'Email in use',
@@ -46,29 +52,23 @@ async function login(req, res) {
     const user = await User.findOne({
       email: userReqData.email,
     });
-    if (!user) {
-      return res.status(401).json({
-        Status: 'Unauthorized',
-        code: 401,
-        ResponseBody: 'Email or password id wrong',
-      });
-    }
+
     const authentication = bCrypt.compareSync(
       userReqData.password,
       user.password,
     );
 
-    if (!authentication) {
-      return res.status(401).json({
+    if (!user || !authentication) {
+      return res.status(httpCode.UNATHORIZED).json({
         Status: 'Unauthorized',
-        code: 401,
-        ResponseBody: 'Email or password is wrong',
+        code: httpCode.UNATHORIZED,
+        ResponseBody: 'Email or password id wrong',
       });
     }
 
     if (authentication) {
       const payload = { _id: user._id };
-      const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+      const token = jwt.sign(payload, secret, { expiresIn: '3h' });
 
       await User.findByIdAndUpdate(
         user._id,
@@ -78,11 +78,12 @@ async function login(req, res) {
         },
       );
 
-      return res.status(200).json({
+      return res.status(httpCode.OK).json({
         Status: 'OK,',
         'Content-Type': 'application/json',
         ResponseBody: {
           token: token,
+          code: httpCode.OK,
           user: {
             email: user.email,
             subscription: user.subscription,
@@ -91,7 +92,6 @@ async function login(req, res) {
       });
     }
   } catch (error) {
-    console.log(error.code);
     handleError(error);
   }
 }
@@ -100,15 +100,9 @@ async function logout(req, res) {
   const _id = req.user._id;
 
   try {
-    await User.findByIdAndUpdate(
-      _id,
-      { token: '' },
-      {
-        new: true,
-      },
-    );
+    await User.findByIdAndUpdate(_id, { token: null });
 
-    res.status(204).send('No Content');
+    res.status(httpCode.NO_CONTENT).send('no content');
   } catch (error) {
     handleError(error);
   }
@@ -118,17 +112,46 @@ async function currentUser(req, res) {
   const _id = req.user._id;
   try {
     const user = await User.findById(_id);
-    res.status(200).json({
+    res.status(httpCode.OK).json({
       Status: 'OK',
-      code: 200,
+      code: httpCode.OK,
       'Content-Type': 'application/json',
       ResponseBody: {
         email: user.email,
         subscription: user.subscription,
+        avatar: user.avatarURL,
       },
     });
   } catch (error) {
     handleError(error);
+  }
+}
+
+async function avatar(req, res, next) {
+  try {
+    const { _id } = req.user;
+    const {
+      public_id: imgCloudId,
+      secure_url: avatarURL,
+    } = await uploadAvatarToCloud(req);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      {
+        imgCloudId,
+        avatarURL,
+      },
+      { new: true },
+    );
+
+    res.status(httpCode.OK).json({
+      ResponseBody: {
+        avatarURL: updatedUser.avatarURL,
+      },
+    });
+  } catch (err) {
+    handleError(err);
+    next(err);
   }
 }
 
@@ -137,4 +160,5 @@ export default {
   login,
   logout,
   currentUser,
+  avatar,
 };

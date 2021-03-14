@@ -18,9 +18,18 @@ get current user: 'users/current'
 
 pagination: GET request '/contacts/?page=1&limit=5', default: page=1, limit=10
 
-filtering contacts by subscription: GET /contacts?sub=free
+sorting contacts by subscription: GET /contacts?sortBy or /contacts?sortByDesk
 
-//////////////// сервер express
+filtration contact: GET /contacts?filter=name or /contacts?filter=name |
+subscription
+
+//////////////// features
+
+random-avatar-generator
+
+jimp for resizing image for avatar
+
+сервер express
 
 использованы импорты
 

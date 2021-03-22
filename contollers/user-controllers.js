@@ -1,21 +1,33 @@
 import bCrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { nanoid } from 'nanoid';
+import dotenv from 'dotenv';
 import { handleError } from '../lib/handlerror.js';
 import User from '../service/schema/user-schema.js';
 import { httpCode } from '../helpers/constants.js';
 import uploadAvatarToCloud from '../service/convertAndUploadAvatar.js';
+import sendVerifyMail from '../service/email/email.js';
+
+dotenv.config();
 
 async function createUser(req, res) {
   const data = req.body;
+
+  const verifyToken = nanoid();
 
   const password = bCrypt.hashSync(data.password, bCrypt.genSaltSync(6));
   const newUser = {
     ...data,
     password,
+    verifyToken,
   };
 
   try {
     const user = await User.create(newUser);
+
+    if (user) {
+      sendVerifyMail(data.email, verifyToken);
+    }
 
     return res.status(httpCode.CREATED).json({
       Status: 'Created',
@@ -155,10 +167,39 @@ async function avatar(req, res, next) {
   }
 }
 
+async function emailVerify(req, res, next) {
+  const { token } = req.params;
+
+  try {
+    const user = await User.findOne({ verifyToken: token });
+    if (user) {
+      await User.updateOne(
+        { _id: user.id },
+        { verify: true, verifyToken: null },
+      );
+
+      return res.status(httpCode.OK).json({
+        status: 'success',
+        code: httpCode.OK,
+        message: 'Verification successful',
+      });
+    }
+
+    return res.status(httpCode.BAD_REQUEST).json({
+      status: 'error',
+      code: httpCode.BAD_REQUEST,
+      message: 'Link is not valid',
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export default {
   createUser,
   login,
   logout,
   currentUser,
   avatar,
+  emailVerify,
 };

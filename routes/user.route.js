@@ -16,4 +16,6 @@ router.get('/current', tokenValidation, userController.currentUser);
 
 router.patch('/avatars', tokenValidation, userController.avatar);
 
+router.get('/verify/:token', userController.emailVerify);
+
 export default router;

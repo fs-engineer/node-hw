@@ -15,9 +15,14 @@ import tokenValidation from './service/token-validation.js';
 dotenv.config();
 const server = express();
 
-//init midlleware
+//init middleware
 server.use(logger('dev'));
-server.use(cors());
+server.use(cors({
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
 server.use(express.json());
 
 // multer Disk storage

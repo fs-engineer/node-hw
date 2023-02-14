@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Google-Barma/node-hw.git"
+    "url": "git+https://github.com/fs-engineer/node-hw.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Google-Barma/node-hw/issues"
+    "url": "https://github.com/fs-engineer/node-hw/issues"
   },
-  "homepage": "https://github.com/Google-Barma/node-hw#readme",
+  "homepage": "https://github.com/fs-engineer/node-hw#readme",
   "devDependencies": {
     "eslint": "^7.19.0",
     "eslint-config-standard": "^16.0.2",

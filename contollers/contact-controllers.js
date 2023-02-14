@@ -84,8 +84,8 @@ async function addContact(req, res) {
     return res.status(httpCode.CREATED).json({
       status: 'success',
       code: httpCode.CREATED,
-      data: {
-        _id,
+      contact: {
+        id: _id,
         name,
         email,
         phone,
@@ -140,8 +140,11 @@ async function updateContact(req, res) {
     return res.json({
       status: 'access',
       code: httpCode.OK,
-      data: {
-        updatedContact,
+      contact: {
+        name: updatedContact._doc.name,
+        email: updatedContact._doc.email,
+        phone: updatedContact._doc.phone,
+        id: contactId,
       },
     });
   } catch (error) {

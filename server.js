@@ -73,12 +73,12 @@ mongoose
 
 server.listen(PORT, async () => {
   try {
-    createFolderIsNotExist(UPLOAD_DIR);
-    createFolderIsNotExist(IMG_DIR);
+    await createFolderIsNotExist(UPLOAD_DIR);
+    await createFolderIsNotExist(IMG_DIR);
 
     console.log(`Server running. CORS-enabled. Use our API on port ${PORT}.`);
   } catch (error) {
-    console.log(`Server not running. Error message: ${error.message}`),
+    console.log(`Server not running. Error message: ${error.message}`)
       process.exit(1);
   }
 });

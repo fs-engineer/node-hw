@@ -64,8 +64,22 @@ async function addContact(req, res) {
     const data = req.body;
     const userId = req.user._id;
 
+    const isExistContact = await Contact.find({owner: userId, email: data.email})
+
+    if (isExistContact.length) {
+      return res.status(httpCode.CONFLICT).json({
+        status: 'Conflict',
+        code: httpCode.NOT_FOUND,
+        message: `Contact with this email founded.`,
+        data: 'Bad request.',
+      });
+    }
+
     const contact = await Contact.create({ ...data, owner: userId });
+
+
     const { _id, name, email, phone } = contact;
+
 
     return res.status(httpCode.CREATED).json({
       status: 'success',
@@ -79,7 +93,8 @@ async function addContact(req, res) {
       message: 'Contact added',
     });
   } catch (error) {
-    handleError(error);
+    // handleError(error);
+    console.error(err.message);
   }
 }
 

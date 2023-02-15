@@ -13,29 +13,29 @@ import convertAndUploadAvatar from './service/convertAndUploadAvatar.js';
 import tokenValidation from './service/token-validation.js';
 
 dotenv.config();
-const server = express();
+const index = express();
 
 //init middleware
-server.use(logger('dev'));
-server.use(cors({
+index.use(logger('dev'));
+index.use(cors({
   origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-server.use(express.json());
+index.use(express.json());
 
 // multer Disk storage
 const upload = createDiskStorage(UPLOAD_DIR);
 
 //static
-server.use('/images', express.static('public/images'));
+index.use('/images', express.static('public/images'));
 //routes
-server.use('/users', upload.single('avatar'), userRouter);
-server.use('/contacts', contactRouter);
+index.use('/users', upload.single('avatar'), userRouter);
+index.use('/contacts', contactRouter);
 
 //errors
-server.use((_, res) => {
+index.use((_, res) => {
   res.status(404).json({
     status: 'error',
     code: 404,
@@ -44,7 +44,7 @@ server.use((_, res) => {
   });
 });
 
-server.use((err, _, res) => {
+index.use((err, _, res) => {
   res.status(500).json({
     status: 'fail',
     code: 500,
@@ -53,7 +53,7 @@ server.use((err, _, res) => {
   });
 });
 
-//connect mongo db and start server
+//connect mongo db and start index
 const PORT = process.env.PORT || 3000;
 const DATA_HOST = process.env.DATA_HOST;
 
@@ -71,7 +71,7 @@ mongoose
     handleError(err);
   });
 
-server.listen(PORT, async () => {
+index.listen(PORT, async () => {
   try {
     await createFolderIsNotExist(UPLOAD_DIR);
     await createFolderIsNotExist(IMG_DIR);
